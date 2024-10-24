@@ -36,6 +36,7 @@ export default function TopBar({weatherinfoArray,setweatherinfoArray,setWeatheri
                             if(weatherinfoArray.every(((value)=>(value?.daliy.location!=locationname))))
                             {
                                 setweatherinfoArray([...weatherinfoArray,{...r,daliy:{...r.daliy,location:locationname}}]);
+                                setWeatherinfo({...r,daliy:{...r.daliy,location:locationname}})
                                 let citycookie=Cookies.get("city")
                                 if(citycookie!=undefined){
                                     let oldcitycookie= JSON.parse(citycookie)

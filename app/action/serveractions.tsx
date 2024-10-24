@@ -28,7 +28,7 @@ export async function GetWeatherForecast(this: any, la:number,long:number) {
     const range = (start: number, stop: number, step: number) =>
         Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
     const response = responses[0];
-    const utcOffsetSeconds = response.utcOffsetSeconds();
+    const utcOffsetSeconds = 0;
     const timezone = response.timezone();
     const timezoneAbbreviation = response.timezoneAbbreviation();
     const latitude = response.latitude();

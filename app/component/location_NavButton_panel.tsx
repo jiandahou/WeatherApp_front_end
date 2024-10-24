@@ -8,7 +8,7 @@ type Props={
  const LocationNavButtonPanel= forwardRef<Ref,Props>(function LocationNavButtonPanel(props,ref
 ){var LocationInfoList=props.LocationInfoList
     const {onClick=()=>{}}=props
-    return(<div className="overflow-hidden">
+    return(<div className="overflow-hidden shrink">
             <div className="flex flex-row relative" ref={ref}>
             {LocationInfoList.map(locationInfo=>
                 <LocationNavButton weather={locationInfo} key={locationInfo.location} onClick={onClick} ></LocationNavButton>

@@ -112,5 +112,5 @@ export default function MainWeatherPanel({weatherNow}:{weatherNow:locationWeathe
     </div>)
 };
 export function HiddenPanel({children}:{children:ReactNode}){
-    return (<div className=" transition  duration-500 group-hover:block absolute  opacity-0 group-hover:opacity-100 top-1 left-1/4 z-20 bg-slate-200  max-w-48 w-max rounded-md p-2 text-xs">{children}</div>)
+    return (<div className=" transition pointer-events-none group-hover:pointer-events-auto  duration-500 group-hover:block absolute  opacity-0 group-hover:opacity-100 top-1 left-1/4 z-20 bg-slate-200  max-w-48 w-max rounded-md p-2 text-xs">{children}</div>)
 }

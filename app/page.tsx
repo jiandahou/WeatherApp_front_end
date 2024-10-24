@@ -10,7 +10,7 @@ import FeelsLike from "./component/FeelsLike"
 import Pressure from "./component/Pressure"
 import Visibility from "./component/Visibility"
 export default function Home() {
-  function fetchAndSetInfo(name:string){
+  function fetchAndSetInfo(name:string,setarray:boolean=true){
     GetTheCityInfo(name).then(r=>{
       if(r.status=="success"){
         let longtitude=r.value.longtitude
@@ -19,7 +19,9 @@ export default function Home() {
         (r=>{
             if(weatherinfoArray.every(((value)=>(value?.daliy.location!=name)))){
                 setweatherinfoArray((w)=>([...w,{...r,daliy:{...r.daliy,location:name}}]));
-                setWeatherinfo({...r,daliy:{...r.daliy,location:name}})
+                if(setarray==true){
+                  setWeatherinfo({...r,daliy:{...r.daliy,location:name}})
+                }
             }
             else{
               console.log("Already have same info for that city:" + name)
@@ -65,17 +67,7 @@ export default function Home() {
             if(weatherinfoArray.find((weatherinfo)=>{
                 weatherinfo?.daliy.location==city
             })==undefined){
-                GetTheCityInfo(city).then((r)=>{
-                    if(r.status=="success"){
-                        let longtitude=r.value.longtitude
-                        let latitude=r.value.latitude 
-                        GetWeatherForecast(latitude,longtitude).then
-                        (r=>{
-                            if(weatherinfoArray.every(((value)=>(value?.daliy.location!=city)))){
-                                setweatherinfoArray((w)=>([...w,{...r,daliy:{...r.daliy,location:city}}]));
-                            }})
-                    }
-                })
+              fetchAndSetInfo(city,false)
             }
         })
     }

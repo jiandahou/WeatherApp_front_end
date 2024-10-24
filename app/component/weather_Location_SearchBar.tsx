@@ -1,5 +1,6 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react';
+//changing the json to mysql request would be better choice 
 import cities from '../cities.json';
 import clsx from 'clsx';
 import path from 'node:path';
@@ -14,17 +15,23 @@ export default function WeatherLocationSearchBar({onClick=(e:React.MouseEvent<HT
         country: string,
     }
     var openSearchbox=false
-    function Checkresult(){
+    function Checkresult(input:string){
         return cityList.filter((city=>city.name.toLowerCase().includes(input.toLowerCase())))
         .sort((s1:city,s2:city)=>{
-                if(s1.name.startsWith(input) &&!s2.name.startsWith(input)){
+                if(s1.name.toLowerCase().startsWith(input.toLowerCase()) &&!s2.name.toLowerCase().startsWith(input.toLowerCase())){
                     return -1
                 }
-                else if(!s1.name.startsWith(input) &&s2.name.startsWith(input)){
+                else if(!s1.name.toLowerCase().startsWith(input.toLowerCase()) &&s2.name.toLowerCase().startsWith(input.toLowerCase())){
                     return 1
                 }
                 else{
-                    return 0
+                    if(s1.name.toLowerCase().indexOf(input.toLowerCase())<s2.name.toLowerCase().indexOf(input.toLowerCase())){
+                        return -1
+                    }
+                    else if(s1.name.toLowerCase().indexOf(input.toLowerCase())>s2.name.toLowerCase().indexOf(input.toLowerCase())){
+                        return 1
+                    }
+                    return s1.name.localeCompare(s2.name,"en")
                 }       
                 })
 }
@@ -51,14 +58,12 @@ export default function WeatherLocationSearchBar({onClick=(e:React.MouseEvent<HT
     return(
         <div className='sm:w-64 search-container shrink-0 space-y-4'>
             <div className="flex flex-row rounded-lg border-gray-400 relative ">
-                <input type="text" placeholder="Searching for location" value={input} className="rounded-lg w-full" onChange={(e=>{setInput(e.target.value);setResult(Checkresult());if(!e.target.value){
+                <input type="text" placeholder="Searching for location" value={input} className="rounded-lg w-full" onChange={(e=>{setInput(e.target.value);setResult(Checkresult(e.target.value));if(!e.target.value){
                     loseFoucus()
                 }})}></input>
                 <img src="search-svgrepo-com.svg" alt="searchIcon" className='mx-4 absolute right-0  pointer-events-none size-4 bottom-1'></img>
-            </div>
-            <div>
-                <ul className={clsx("bg-white/90 absolute top-6 rounded-lg z-20",{"hidden":!openSearchbox,"block":openSearchbox})}>
-                    {result.map(result=><li key={result.name+result.lat} className='hover:bg-cyan-100'><button className='w-56 rounded-lg text-left truncate' onClick={(e) => {onClick(e);loseFoucus()}}>{result.name}</button></li>)}
+                <ul className={clsx("bg-white/90 absolute top-6 rounded-lg z-20 w-full",{"hidden":!openSearchbox,"block":openSearchbox})}>
+                    {result.map(result=><li key={result.name+result.lat} className='hover:bg-cyan-100'><button className='w-full rounded-lg text-left truncate' onClick={(e) => {onClick(e);loseFoucus()}}>{result.name}</button></li>)}
                 </ul>
             </div>
 
