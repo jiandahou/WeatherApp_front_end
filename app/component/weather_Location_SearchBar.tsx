@@ -7,7 +7,15 @@ import path from 'node:path';
 export default function WeatherLocationSearchBar({onClick=(e:React.MouseEvent<HTMLButtonElement>)=>{}}){
     var [result,setResult]=useState([] as any[]);
     var [input,setInput]=useState("");
-    const cityList = useMemo(() => Object.values(cities), []);
+    const cityList = useMemo(() => 
+        Object.values(cities).map((city: any) => ({
+          name: city.name,
+          lat: parseFloat(city.lat), // 确保 lat 是数字
+          lng: parseFloat(city.lng), // 确保 lng 是数字
+          country: city.country,
+        })),
+        []
+      );
     type city={
         name:string ,
         lat: number,
