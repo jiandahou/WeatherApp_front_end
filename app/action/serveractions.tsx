@@ -212,7 +212,7 @@ export async function GetWeatherForecast(this: any, la:number,long:number) {
     
 }
 export async function GetTheCityInfo(locationname:string){
-    return fetch(process.env.NEXT_PUBLIC_BACKEND_URL as string +`/location/name/${locationname}`).then(
+    return fetch(process.env.NEXT_PUBLIC_BACKEND_URL as string +`/name/${locationname}`).then(
         (r)=>{
             return r.json()
         }

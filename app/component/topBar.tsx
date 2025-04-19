@@ -18,7 +18,7 @@ export default function TopBar({weatherinfoArray,setweatherinfoArray,setWeatheri
         function searchBarOnclick(e:React.MouseEvent<HTMLButtonElement>){
             let locationname=e.currentTarget.innerText
             let response={}
-            fetch(process.env.NEXT_PUBLIC_BACKEND_URL as string +`/location/name/${locationname}`).then(
+            fetch(process.env.NEXT_PUBLIC_BACKEND_URL as string +`/name/${locationname}`).then(
                 (r)=>{
                     return r.json()
                 }
@@ -28,8 +28,12 @@ export default function TopBar({weatherinfoArray,setweatherinfoArray,setWeatheri
                     console.log(r)
                 }
                 else{
-                    let longtitude=r.value.longtitude
+                    console.log("fecth success,")
+                    let longtitude=r.value.longitude
                     let latitude=r.value.latitude
+                    console.log(r)
+                    console.log(longtitude)
+                    console.log(latitude)
                     if(latitude!=undefined&&longtitude!=undefined){
                         GetWeatherForecast(latitude,longtitude).then
                         (r=>{

@@ -13,8 +13,10 @@ export default function Home() {
   function fetchAndSetInfo(name:string,setarray:boolean=true){
     GetTheCityInfo(name).then(r=>{
       if(r.status=="success"){
-        let longtitude=r.value.longtitude
+        let longtitude=r.value.longitude
         let latitude=r.value.latitude 
+        console.log(longtitude)
+        console.log(latitude)
         GetWeatherForecast(latitude,longtitude).then
         (r=>{
             if(weatherinfoArray.every(((value)=>(value?.daliy.location!=name)))){

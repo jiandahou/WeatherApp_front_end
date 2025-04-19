@@ -17,7 +17,7 @@ function isNotUndefinedArray<T>(arr: T[]): arr is Exclude<T, undefined>[] {
 
 export default function Test(){
     var latitude=useRef(0)
-    var longtitude=useRef(0)
+    var longitude=useRef(0)
     var [isFetch,setIsFetch]=useState(false)
     var [index,setIndex]=useState(0)
     var [weatherinfo,setWeatherinfo]=useState<weatherinfoFetched>()
@@ -25,10 +25,10 @@ export default function Test(){
     var Backendurl=useRef("")
     if(latitude.current!=0)
     latitude.current=Math.floor(Math.random()*90)*(Math.random()>0.5?1:-1);
-    if(longtitude.current!=0)
-    longtitude.current=Math.floor(Math.random()*180)*(Math.random()>0.5?1:-1)
+    if(longitude.current!=0)
+    longitude.current=Math.floor(Math.random()*180)*(Math.random()>0.5?1:-1)
     latitude.current=49.58703675
-    longtitude.current=117.4789175
+    longitude.current=117.4789175
     var locationWeatherArray=weatherinfoArray.map((weatherinfo)=>{
         if(weatherinfo!=undefined)
         return weatherinfo.daliy
@@ -36,7 +36,7 @@ export default function Test(){
     console.log(weatherinfo?.daliy.windDirection10m)
 
     useEffect(()=>{
-        GetWeatherForecast(latitude.current,longtitude.current).then((r)=>{setWeatherinfo({...r,daliy:{...r.daliy,location:"Manzhouli"}});
+        GetWeatherForecast(latitude.current,lolongitudengtitude.current).then((r)=>{setWeatherinfo({...r,daliy:{...r.daliy,location:"Manzhouli"}});
         setIsFetch(true);
         setweatherinfoArray([...weatherinfoArray,{...r,daliy:{...r.daliy,location:"Manzhouli"}}])
         if(process.env.NEXT_PUBLIC_BACKEND_URL!=undefined){
@@ -51,9 +51,9 @@ export default function Test(){
                 })==undefined){
                     GetTheCityInfo(city).then((r)=>{
                         if(r.status=="success"){
-                            let longtitude=r.value.longtitude
+                            let longitude=r.value.longitude
                             let latitude=r.value.latitude 
-                            GetWeatherForecast(latitude,longtitude).then
+                            GetWeatherForecast(latitude,longitude).then
                             (r=>{
                                 if(weatherinfoArray.every(((value)=>(value?.daliy.location!=city)))){
                                     setweatherinfoArray((w)=>([...w,{...r,daliy:{...r.daliy,location:city}}]));
@@ -63,7 +63,7 @@ export default function Test(){
                 }
             })
         }
-    },[longtitude.current,latitude.current])
+    },[longitude.current,latitude.current])
     if(weatherinfo!=undefined&&isNotUndefinedArray(locationWeatherArray)){
         return(
             <div>
