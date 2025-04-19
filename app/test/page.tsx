@@ -36,7 +36,7 @@ export default function Test(){
     console.log(weatherinfo?.daliy.windDirection10m)
 
     useEffect(()=>{
-        GetWeatherForecast(latitude.current,lolongitudengtitude.current).then((r)=>{setWeatherinfo({...r,daliy:{...r.daliy,location:"Manzhouli"}});
+        GetWeatherForecast(latitude.current,longitude.current).then((r)=>{setWeatherinfo({...r,daliy:{...r.daliy,location:"Manzhouli"}});
         setIsFetch(true);
         setweatherinfoArray([...weatherinfoArray,{...r,daliy:{...r.daliy,location:"Manzhouli"}}])
         if(process.env.NEXT_PUBLIC_BACKEND_URL!=undefined){
