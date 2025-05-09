@@ -96,9 +96,6 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
 
     )
 }
-type props={
-    weatherForThatDay:locationWeather
-}
 export function ButtonPanleForTenDay({onClick}:{onClick:Function}){
     let [indexOnpage,setIndexOnpage]=useState(0)
     var weatherForTenDay=useSelector(selectWeatherinfo)!.daily

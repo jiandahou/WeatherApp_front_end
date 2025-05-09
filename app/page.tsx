@@ -127,7 +127,6 @@ return (
             <MainWeatherPanel/>
             <div className="bg-white-transparent">
               <TenDayForcastingPanel 
-                weatherForTenDay={weatherinfo!.daily} 
                 hourlyinfo={weatherinfo!.hourly} 
               />
             </div>
