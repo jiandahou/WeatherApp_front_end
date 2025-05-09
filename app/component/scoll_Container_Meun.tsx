@@ -1,71 +1,90 @@
 "use client"
 import LocationNavButtonPanel from "./location_NavButton_panel";
-import { MouseEventHandler, useEffect, useRef, useState } from 'react';
-export default function ScollContainerMeun({LocationInfoList,onClick=()=>{}}:
-    {LocationInfoList:Array<locationWeather>,
-        onClick?:MouseEventHandler
-    }){
-        var [counterOfchange,setCounterOfchange]=useState<number>(0)
+import {useCallback, useEffect, useRef, useState } from 'react';
+export default function ScollContainerMeun(){
         var panelref=useRef<HTMLDivElement>(null);
         var [buttonIndex,setbuttonindex]=useState<number>(0)
-        var buttonlist=useRef<HTMLCollectionOf<HTMLButtonElement>>()
-        var ButtonNumber=useRef<number>(0)
-        var maxButtonInPanel=useRef<number>(1)
-        function updateButtonCount(){
-            buttonlist.current=panelref.current!.getElementsByTagName("button")
-            ButtonNumber.current=buttonlist.current!.length
-            var style=window.getComputedStyle(buttonlist.current[0])
-            var margin = parseFloat(style.marginLeft) + parseFloat(style.marginRight)
-            maxButtonInPanel.current=(panelref.current?.getBoundingClientRect().width!)/(buttonlist.current[0].getBoundingClientRect().width+margin)
-            maxButtonInPanel.current=parseInt(maxButtonInPanel.current.toFixed(0))
-        }
-        useEffect(()=>{
-            updateButtonCount(),
-            window.addEventListener('resize',handleResize)
-            return ()=>{window.removeEventListener("resize",handleResize)}
-        },[])
-        function handleResize(){
+        const [atRight, setAtRight] = useState(false)
+        var [ButtonNumber,setButtonNumber]=useState<number>(0)
+        const updateButtonCount = useCallback(() => {
+            const list = panelref.current?.getElementsByTagName("button") ?? [];
+            setButtonNumber(list.length);
+          }, []);
+          useEffect(() => {
             updateButtonCount();
-            setbuttonindex((prevButtonIndex) => {
-                    if (prevButtonIndex + maxButtonInPanel.current > ButtonNumber.current) {
-                        let index = (ButtonNumber.current - maxButtonInPanel.current >= 0) 
-                            ? ButtonNumber.current - maxButtonInPanel.current 
-                            : 0;
-                        return index;
-                    }
-                    return prevButtonIndex;
-                })
-
-        }
-        function turnleft(){
-            updateButtonCount()
-            if(buttonIndex<=0){
-                return
-            }
-            else{
-                setbuttonindex(buttonIndex-1)
-                buttonlist.current![buttonIndex-1].scrollIntoView({block:"center",inline:"start"})
-            }
-
-        }
-        function turnright(){
-            updateButtonCount()
-            if(buttonIndex>=ButtonNumber.current-maxButtonInPanel.current){
-                return
-            }
-            else{
-                setbuttonindex(buttonIndex+1)
-                buttonlist.current![buttonIndex+1].scrollIntoView({block:"center",inline:"start"})
-            }
-        }
+            const el = panelref.current;
+            if (!el) return;
+            const mo = new MutationObserver(() => {
+              updateButtonCount();
+            });
+            mo.observe(el, { childList: true });
+            return () => mo.disconnect();
+          }, [updateButtonCount]);
+        
+          useEffect(() => {
+            const el = panelref.current;
+            if (!el) return;
+            const buttons = el.getElementsByTagName("button");
+            if (!buttons.length) return;
+            const last = buttons[buttons.length - 1];
+            const io = new IntersectionObserver(
+              ([entry]) => (console.log("intersectionObserver triggered" +entry.intersectionRatio),setAtRight(entry.intersectionRatio === 1)),
+              {  threshold: 1 }
+            );
+            io.observe(last);
+            console.log(last.innerText)
+            return () => io.disconnect();
+          }, [ButtonNumber]);
+        
+          function turnLeft() {
+            if (buttonIndex <= 0) return;
+            setbuttonindex(i => i - 1);
+            panelref.current!
+              .getElementsByTagName("button")
+              [buttonIndex - 1].scrollIntoView({ inline: "start", block: "nearest" });
+          }
+        
+          function turnRight() {
+            if (buttonIndex >= ButtonNumber - 1 || atRight) return;
+            setbuttonindex(i => i + 1);
+            panelref.current!
+              .getElementsByTagName("button")
+              [buttonIndex + 1].scrollIntoView({ inline: "start", block: "nearest" });
+          }
     return(
         <div className="flex sm:ml-2 sm:grow shrink sm:w-0">
-            <LocationNavButtonPanel LocationInfoList={LocationInfoList}  ref={panelref} onClick={onClick} />
-            <button aria-label="turn left" className="w-5 h-5 mx-2 shrink-0 " onClick={e=>turnleft()}>
-                <img title="leftarrow" src="leftarrow.svg"></img>
+            <button
+                aria-label="Scroll left"
+                onClick={turnLeft}
+                className="
+                w-8 h-8 sm:w-10 sm:h-10  mx-2 flex-none
+                flex items-center justify-center
+                bg-white/50 backdrop-blur-sm
+                rounded-full
+                shadow-md
+                hover:bg-white/70
+                active:bg-white
+                transition-colors duration-200 ease-in-out
+                "
+            >
+                <img src="leftarrow.svg" alt="Left arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
             </button>
-            <button aria-label="turn right" className="w-5 h-5 shrink-0" onClick={e=>turnright()}>
-                <img title="rightarrow" src="rightarrow.svg"></img>
+            <LocationNavButtonPanel  ref={panelref} />
+            <button
+                aria-label="Scroll right"
+                onClick={turnRight}
+                className="
+                w-8 h-8 sm:w-10 sm:h-10  mx-2 flex-none
+                flex items-center justify-center
+                bg-white/50 backdrop-blur-sm
+                rounded-full
+                shadow-md
+                hover:bg-white/70
+                active:bg-white
+                transition-colors duration-200 ease-in-out
+                "
+            >
+                <img src="rightarrow.svg" alt="Right arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
             </button>
         </div>
     )

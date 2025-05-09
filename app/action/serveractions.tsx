@@ -2,9 +2,9 @@
 import { json } from "node:stream/consumers"
 import { fetchWeatherApi } from "openmeteo"
 
-export async function  ReverseGeocoding(latitude:number,longtitude:number){
+export async function  ReverseGeocoding(latitude:number,longitude:number){
     var info:any={}
-    await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longtitude}`)
+    await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
     .then((responds)=>{return responds.json()})
     .then(data=>{info["city"]=data["address"]["city"],
         info["country"]=data["address"]["country"]
@@ -158,7 +158,7 @@ export async function GetWeatherForecast(this: any, la:number,long:number) {
         snowfallSum:weatherData.daily.snowfallSum[index],
         precipitationHours:weatherData.daily.precipitationHours[index],
         recipitationProbabilityMax:weatherData.daily.precipitationProbabilityMax[index],
-        weatherForNextTenDay:[] as Array<weatherdaliyinfo>
+        weatherForNextTenDay:[] as Array<weatherdailyinfo>
     }
     let timeNow=weatherData.current.time
     let dayNow=timeNow.getDate()
@@ -206,21 +206,31 @@ export async function GetWeatherForecast(this: any, la:number,long:number) {
     }
     console.log(weahterInfoTodayWithHourlyForNextTenDay)
     console.log(hourlyForecastInfo[0])
-    return{ daliy:weahterInfoTodayWithHourlyForNextTenDay,
+    return{ daily:weahterInfoTodayWithHourlyForNextTenDay,
             hourly:hourlyForecastInfo
     }
     
 }
-export async function GetTheCityInfo(locationname:string){
-    return fetch(process.env.NEXT_PUBLIC_BACKEND_URL as string +`/name/${locationname}`).then(
-        (r)=>{
-            return r.json()
+async function fetchFromBackend(endpoint: string) {
+    const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
+    try {
+        const response = await fetch(`${baseUrl}${endpoint}`);
+        if (!response.ok) {
+            throw new Error(`Network response was not ok: ${response.status}`);
         }
-    )
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error; 
+    }
 }
-export async function GetTheCityInfoBylola(longtitude:number,latitude:number){
-    return fetch(process.env.NEXT_PUBLIC_BACKEND_URL as string +`/location/${longtitude}/${latitude}`).then(
-        (r)=>{
-            return r.json()
-        })
+
+export async function GetTheCityInfo(locationName: string) {
+    const encodedName = encodeURIComponent(locationName.trim());
+    return fetchFromBackend(`/name/${encodedName}`);
+}
+
+export async function GetTheCityInfoByLola(longitude: number, latitude: number) {
+    return fetchFromBackend(`/location/${longitude}/${latitude}`);
 }

@@ -31,14 +31,14 @@ export default function Test(){
     longitude.current=117.4789175
     var locationWeatherArray=weatherinfoArray.map((weatherinfo)=>{
         if(weatherinfo!=undefined)
-        return weatherinfo.daliy
+        return weatherinfo.daily
     })
-    console.log(weatherinfo?.daliy.windDirection10m)
+    console.log(weatherinfo?.daily.windDirection10m)
 
     useEffect(()=>{
-        GetWeatherForecast(latitude.current,longitude.current).then((r)=>{setWeatherinfo({...r,daliy:{...r.daliy,location:"Manzhouli"}});
+        GetWeatherForecast(latitude.current,longitude.current).then((r)=>{setWeatherinfo({...r,daily:{...r.daily,location:"Manzhouli"}});
         setIsFetch(true);
-        setweatherinfoArray([...weatherinfoArray,{...r,daliy:{...r.daliy,location:"Manzhouli"}}])
+        setweatherinfoArray([...weatherinfoArray,{...r,daily:{...r.daily,location:"Manzhouli"}}])
         if(process.env.NEXT_PUBLIC_BACKEND_URL!=undefined){
             Backendurl.current=process.env.NEXT_PUBLIC_BACKEND_URL
         }})
@@ -47,7 +47,7 @@ export default function Test(){
             let allcity= JSON.parse(citycookie) as Array<string>
             allcity.forEach((city)=>{
                 if(weatherinfoArray.find((weatherinfo)=>{
-                    weatherinfo?.daliy.location==city
+                    weatherinfo?.daily.location==city
                 })==undefined){
                     GetTheCityInfo(city).then((r)=>{
                         if(r.status=="success"){
@@ -55,8 +55,8 @@ export default function Test(){
                             let latitude=r.value.latitude 
                             GetWeatherForecast(latitude,longitude).then
                             (r=>{
-                                if(weatherinfoArray.every(((value)=>(value?.daliy.location!=city)))){
-                                    setweatherinfoArray((w)=>([...w,{...r,daliy:{...r.daliy,location:city}}]));
+                                if(weatherinfoArray.every(((value)=>(value?.daily.location!=city)))){
+                                    setweatherinfoArray((w)=>([...w,{...r,daily:{...r.daily,location:city}}]));
                                 }})
                         }
                     })
@@ -71,13 +71,13 @@ export default function Test(){
             <h1> Test different component here</h1>
             <h1> Backendurl:{Backendurl.current}</h1>
             <WeatherLocationSearchBar/>
-            <LocationNavButton weather={weatherinfo.daliy} />
+            <LocationNavButton weather={weatherinfo.daily} />
             <LocationNavButtonPanel LocationInfoList={locationWeatherArray}/>
             <ScollContainerMeun LocationInfoList={locationWeatherArray}/>
             <TopBar weatherinfoArray={weatherinfoArray} setweatherinfoArray={setweatherinfoArray} setWeatherinfo={setWeatherinfo}/>
-            <MainWeatherPanel weatherNow={weatherinfo.daliy}/>
-            <Buttonforoneday weatherForThatDay={weatherinfo.daliy.weatherForNextTenDay[0]}/>
-            <TenDayForcastingPanel weatherForTenDay={weatherinfo.daliy} hourlyinfo={weatherinfo.hourly}></TenDayForcastingPanel>
+            <MainWeatherPanel weatherNow={weatherinfo.daily}/>
+            <Buttonforoneday weatherForThatDay={weatherinfo.daily.weatherForNextTenDay[0]}/>
+            <TenDayForcastingPanel weatherForTenDay={weatherinfo.daily} hourlyinfo={weatherinfo.hourly}></TenDayForcastingPanel>
             <div className="flex w-full">
                 <div className="rounded border-stone-950 border  w-full	">22</div>
                 <div className="rounded border border-stone-950 ">1</div>

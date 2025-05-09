@@ -1,5 +1,5 @@
 
-type weatherdaliyinfo={
+type weatherdailyinfo={
     highestTemperature:number,
     lowestTemperature:number,
     highestApparentTemperature:number,
@@ -39,7 +39,7 @@ type locationWeather={
     snowfallSum:number,
     precipitationHours:number,
     recipitationProbabilityMax:number,
-    weatherForNextTenDay:Array<weatherdaliyinfo>
+    weatherForNextTenDay:Array<weatherdailyinfo>
     location?:string
 }
 type hourlyForecast={
@@ -59,5 +59,5 @@ type hourlyForecast={
     soilMoisture0To1cm: number,
 }
 type weatherinfoFetched={
-    daliy:locationWeather,
+    daily:locationWeather,
     hourly:hourlyForecast[]}|undefined

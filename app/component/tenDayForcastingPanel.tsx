@@ -4,6 +4,8 @@ import clsx from "clsx"
 import { ButtonHTMLAttributes, createContext, forwardRef, useContext, useEffect, useRef, useState } from "react"
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation"
 import { indexOnPageContext } from "./context"
+import { useSelector } from "react-redux"
+import { selectWeatherinfo } from "../store/slice/weatherSlice"
 const weekdayIntepretor:{[key:number]:string}={
     0:"Monday",
     1:"Tuesday",
@@ -69,7 +71,7 @@ function TempertureToColor(temp:number):string{
     }
 }
 export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{return}}:{
-    weatherForThatDay:weatherdaliyinfo,isActive?:boolean,onClick?:any}
+    weatherForThatDay:weatherdailyinfo,isActive?:boolean,onClick?:any}
 ){let weathername=WeatherCodeInterpretator[weatherForThatDay.weathercode]
     return(
         <div className={clsx("shrink-0 grow-0",{"basis-36":isActive==false,"basis-72 ":isActive==true})}>
@@ -97,8 +99,9 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
 type props={
     weatherForThatDay:locationWeather
 }
-export function ButtonPanleForTenDay({weatherForTenDay,onClick}:{weatherForTenDay:locationWeather,onClick:Function}){
+export function ButtonPanleForTenDay({onClick}:{onClick:Function}){
     let [indexOnpage,setIndexOnpage]=useState(0)
+    var weatherForTenDay=useSelector(selectWeatherinfo)!.daily
     let activeOnpage=useContext(indexOnPageContext)
     let buttondivref=useRef<HTMLDivElement>(null)
     let divref=useRef<HTMLDivElement>(null)
@@ -148,6 +151,7 @@ export function ButtonPanleForTenDay({weatherForTenDay,onClick}:{weatherForTenDa
 }
 export function WeatherSVG({hourlyinfo,media="large"}:{hourlyinfo:hourlyForecast[],media:"large"|"small"
 }){
+    var weatherForTenDay=useSelector(selectWeatherinfo)?.daily
     var indexOnpage=useContext(indexOnPageContext)
     var divref=useRef<HTMLDivElement>(null)
     var xPositionArray:Array<number>=[0]
@@ -276,10 +280,9 @@ export function WeatherSVG({hourlyinfo,media="large"}:{hourlyinfo:hourlyForecast
         </div>
     )
 }
-export default function TenDayForcastingPanel({weatherForTenDay,hourlyinfo}:{weatherForTenDay:locationWeather,hourlyinfo:hourlyForecast[]}) {
+export default function TenDayForcastingPanel({hourlyinfo}:{hourlyinfo:hourlyForecast[]}) {
     var [index,setIndex]=useState(0)
     var [media,setMedia]=useState<"small"|"large">((window.innerWidth>=1024)?"large":"small")
-    var indexOnPagecontext=indexOnPageContext
     useEffect(()=>{
         window!.onresize=(e)=>{
             if(window.innerWidth>=1024&&media!="large"){
@@ -293,7 +296,7 @@ export default function TenDayForcastingPanel({weatherForTenDay,hourlyinfo}:{wea
     return(
         <div>
             <indexOnPageContext.Provider value={index} >
-            <div><ButtonPanleForTenDay weatherForTenDay={weatherForTenDay} onClick={setIndex}></ButtonPanleForTenDay></div>
+            <div><ButtonPanleForTenDay onClick={setIndex}></ButtonPanleForTenDay></div>
             <div><WeatherSVG hourlyinfo={hourlyinfo} media={media} ></WeatherSVG></div>
             </indexOnPageContext.Provider>
         </div>
