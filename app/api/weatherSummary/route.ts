@@ -4,6 +4,7 @@ import { GetWeatherSummary } from '@/app/action/serveractions'
 
 export async function POST(req: Request) {
   const body = await req.json();
-  const summary = await GetWeatherSummary(body);
-  return NextResponse.json({ summary });
+  console.log("KEY? =>", !!process.env.OPENAI_API_KEY);
+  // const summary = await GetWeatherSummary(body);
+  return NextResponse.json({data:"2" });
 }
