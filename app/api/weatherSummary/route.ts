@@ -1,3 +1,4 @@
+"use server"
 import { NextResponse } from 'next/server';
 import { GetWeatherSummary } from '@/app/action/serveractions'
 

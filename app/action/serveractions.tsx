@@ -5,6 +5,7 @@ import OpenAI from "openai";
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 
 export async function GetWeatherSummary(weatherInfo:locationWeather) {
+    console.log("KEY? =>", !!process.env.OPENAI_API_KEY);
     const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
