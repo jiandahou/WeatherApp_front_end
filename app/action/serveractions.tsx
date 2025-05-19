@@ -4,10 +4,10 @@ import { fetchWeatherApi } from "openmeteo"
 import OpenAI from "openai";
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 
-const openai = new OpenAI({
+export async function GetWeatherSummary(weatherInfo:locationWeather) {
+    const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-export async function GetWeatherSummary(weatherInfo:locationWeather) {
     const {
     location,
     time,
