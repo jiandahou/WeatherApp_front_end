@@ -1,7 +1,58 @@
 "use server"
 import { json } from "node:stream/consumers"
 import { fetchWeatherApi } from "openmeteo"
+import OpenAI from "openai";
+import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+export async function GetWeatherSummary(weatherInfo:locationWeather) {
+    const {
+    location,
+    time,
+    temperatureNow,
+    apparentTemperatureNow,
+    windSpeed10m,
+    windDirection10m,
+    precipitation,
+    weatherCode,
+    highestTemperature,
+    lowestTemperature,
+    recipitationProbabilityMax,
+    sunshineDuration,
+  } = weatherInfo;
+ const locationString = location ?? "the specified area";
+const dateStr = new Date(time).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+let weathername=WeatherCodeInterpretator[weatherCode]
+const userContent = `
+Here is the weather data for ${locationString} on ${dateStr}:
+- Current temperature: ${temperatureNow}°C
+- Feels like: ${apparentTemperatureNow}°C
+- High: ${highestTemperature}°C / Low: ${lowestTemperature}°C
+- Wind: ${windSpeed10m} km/h, direction ${windDirection10m}°
+- Precipitation: ${precipitation} mm
+- Chance of rain: ${recipitationProbabilityMax}%
+- Sunshine duration: ${sunshineDuration} seconds
+- Weather code: ${weatherCode}
+- weather:${weathername}
+
+Please summarize this data into a short, natural English sentence suitable for a weather forecast.
+`;
+    const completion=await openai.chat.completions.create({model:"gpt-3.5-turbo",
+        messages:[
+            {role:"system",
+            content:"You are a professional weather broadcaster. Given structured weather data, respond with a short, natural-sounding summary in English. Keep it concise, clear, and suitable for the general public"
+            },
+            {
+            role: "user",
+            content: userContent,
+            }
+        ],
+        temperature:0.7
+    })
+    return completion.choices[0].message.content
+}
 export async function  ReverseGeocoding(latitude:number,longitude:number){
     var info:any={}
     await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
@@ -214,7 +265,10 @@ export async function GetWeatherForecast(this: any, la:number,long:number) {
 async function fetchFromBackend(endpoint: string) {
     const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
     try {
-        const response = await fetch(`${baseUrl}${endpoint}`);
+        const response = await fetch(`${baseUrl}${endpoint}`,{
+        next: { revalidate: 86400 } 
+        });
+        console.log('🔍 Fetching from backend: ', `${baseUrl}${endpoint}`);
         if (!response.ok) {
             throw new Error(`Network response was not ok: ${response.status}`);
         }

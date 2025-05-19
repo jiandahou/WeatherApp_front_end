@@ -3,6 +3,7 @@ import { forwardRef, LegacyRef, MouseEventHandler, useMemo } from "react";
 import LocationNavButton from "./location_NavButton";
 import {  useSelector } from "react-redux";
 import {  selectWeatherinfoArray} from "../store/slice/weatherSlice";
+import { motion } from "motion/react";
 export type Ref = HTMLDivElement;
 type Props={
 }
@@ -13,7 +14,7 @@ type Props={
         () => weatherinfoArray.map((w) => w!.daily),
         [weatherinfoArray]
       )
-    return(<div className="overflow-hidden shrink relative  ">
+    return(<div className="shrink relative overflow-x-hidden  ">
             <div className="flex flex-row relative " ref={ref}>
             {LocationInfoList.map(locationInfo=>
                 <LocationNavButton weather={locationInfo!} key={locationInfo!.location}></LocationNavButton>

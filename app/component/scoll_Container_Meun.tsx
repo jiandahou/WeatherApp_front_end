@@ -1,6 +1,7 @@
 "use client"
 import LocationNavButtonPanel from "./location_NavButton_panel";
 import {useCallback, useEffect, useRef, useState } from 'react';
+import { motion } from "motion/react"
 export default function ScollContainerMeun(){
         var panelref=useRef<HTMLDivElement>(null);
         var [buttonIndex,setbuttonindex]=useState<number>(0)
@@ -41,7 +42,7 @@ export default function ScollContainerMeun(){
             setbuttonindex(i => i - 1);
             panelref.current!
               .getElementsByTagName("button")
-              [buttonIndex - 1].scrollIntoView({ inline: "start", block: "nearest" });
+              [buttonIndex - 1].scrollIntoView({ inline: "start", block: "nearest",behavior: "smooth" });
           }
         
           function turnRight() {
@@ -49,11 +50,13 @@ export default function ScollContainerMeun(){
             setbuttonindex(i => i + 1);
             panelref.current!
               .getElementsByTagName("button")
-              [buttonIndex + 1].scrollIntoView({ inline: "start", block: "nearest" });
+              [buttonIndex + 1].scrollIntoView({ inline: "start", block: "nearest",behavior: "smooth" });
           }
     return(
-        <div className="flex sm:ml-2 sm:grow shrink sm:w-0">
-            <button
+        <div className="flex sm:ml-2 sm:grow shrink sm:w-0 mt-2">
+            <motion.button
+                whileHover={{scale:1.1}}
+                whileTap={{scale:0.8}}
                 aria-label="Scroll left"
                 onClick={turnLeft}
                 className="
@@ -68,9 +71,11 @@ export default function ScollContainerMeun(){
                 "
             >
                 <img src="leftarrow.svg" alt="Left arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
-            </button>
+            </motion.button>
             <LocationNavButtonPanel  ref={panelref} />
-            <button
+            <motion.button
+                whileHover={{scale:1.1}}
+                whileTap={{scale:0.8}}
                 aria-label="Scroll right"
                 onClick={turnRight}
                 className="
@@ -85,7 +90,7 @@ export default function ScollContainerMeun(){
                 "
             >
                 <img src="rightarrow.svg" alt="Right arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
-            </button>
+            </motion.button>
         </div>
     )
 }

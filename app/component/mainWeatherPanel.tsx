@@ -1,11 +1,14 @@
 "use client"
-import { ReactNode} from "react";
+import { ReactNode, useEffect, useState} from "react";
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 import { useSelector } from "react-redux";
 import { selectWeatherinfo } from "../store/slice/weatherSlice";
 import { useClock } from "../hooks/useClock";
 import Image from 'next/image';
 import clsx from "clsx";
+import useSWR from "swr";
+import { AnimatePresence, motion } from "framer-motion"
+
 
 const bgMap: Record<string, string> = {
     ClearDay:        "clear-day-bg",
@@ -41,6 +44,25 @@ export default function MainWeatherPanel() {
     const weatherNow=useSelector(selectWeatherinfo)!.daily
     let weathername=WeatherCodeInterpretator[weatherNow.weatherCode]
     const bgFile = bgMap[weathername] ?? "clear-day-bg";
+    const fetchSummary=async (weatherInfo: locationWeather)=>{
+        const res = await fetch("/api/weatherSummary", {
+        method: "POST",
+        body: JSON.stringify(weatherInfo),
+        headers: {
+        "Content-Type": "application/json",
+        },
+    });
+        const data = await res.json();
+        return data.summary;
+    };
+    const { data, error, isLoading } = useSWR(
+        ["weather-summary", weatherNow.weatherCode, weatherNow.temperatureNow],
+        () => fetchSummary(weatherNow),
+        {
+        dedupingInterval: 1000 * 60 * 10,
+        revalidateOnFocus: false,
+        }
+    );
     return(
     //Need get Image of background to the public files
     <div
@@ -69,6 +91,7 @@ export default function MainWeatherPanel() {
                     alt={weathername}
                     width={72}
                     height={72}
+                    loading="eager"
                     onError={(e) => { (e.target as HTMLImageElement).src = '/sun.svg'; }}
                         />                        
             <div className="text-6xl ">{weatherNow.temperatureNow.toFixed()}</div>
@@ -85,7 +108,19 @@ export default function MainWeatherPanel() {
                 </div>
             </div>
             <div className="my-6 bg-black/50 backdrop-blur-md rounded-lg p-4 text-white max-w-fit">
-                <p>Today Weather is {weathername}. The highest tempture is {Math.round(weatherNow.highestTemperature)}. </p>
+                <motion.p
+                    key={data ?? "placeholder"}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-white"
+                >
+                    {data ??
+                    `Today Weather is ${weathername}. The highest temperature is ${Math.round(
+                        weatherNow.highestTemperature
+                    )}°C.`}
+                </motion.p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:flex lg:justify-between">
                 <div className="bg-black/50 backdrop-blur-md rounded-lg p-4 text-white z-50" >
