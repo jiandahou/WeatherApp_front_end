@@ -155,7 +155,7 @@ export function WeatherSVGMotion({
                 y={height - 50}
                 width={16}
                 height={16}
-                href="/Raininpanel.svg"
+                href="/RaininPanel.svg"
               />
               <text
                 x={p.x + xOffset}
