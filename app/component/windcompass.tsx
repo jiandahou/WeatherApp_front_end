@@ -1,7 +1,12 @@
 import Image from 'next/image'
 import React from 'react'
+import { useSelector } from 'react-redux'
+import { selectWeatherinfo } from '../store/slice/weatherSlice'
 
- function Windcompass({windspeed,windDirection}:{windspeed:number,windDirection:number}) {
+ function Windcompass() {
+    const weatherinfo=useSelector(selectWeatherinfo)
+    const windspeed=weatherinfo!.daily.windSpeed10m
+    const windDirection=weatherinfo!.daily.windDirection10m
     function windDirectionInterpreter(number:number):string{
         if(number<90){
             return "NE"

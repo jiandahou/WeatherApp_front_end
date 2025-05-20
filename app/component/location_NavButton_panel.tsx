@@ -15,11 +15,11 @@ type Props={
         [weatherinfoArray]
       )
     return(<div className="shrink relative overflow-x-hidden  ">
-            <div className="flex flex-row relative " ref={ref}>
+            <motion.div className="flex flex-row relative " ref={ref}>
             {LocationInfoList.map(locationInfo=>
                 <LocationNavButton weather={locationInfo!} key={locationInfo!.location}></LocationNavButton>
             )}
-            </div>
+            </motion.div>
         </div>)
 })
 export default LocationNavButtonPanel

@@ -2,8 +2,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 //changing the json to mysql request would be better choice 
 import cities from '../cities.json';
-import clsx from 'clsx';
-import path from 'node:path';
 import { fetchAndSetInfo } from '../store/slice/weatherSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store/store';

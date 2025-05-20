@@ -130,7 +130,7 @@ return (
                 hourlyinfo={weatherinfo!.hourly} 
               />
             </div>
-            <div className="grid grid-cols-12 auto-rows-fr">
+            <div className="grid grid-cols-12 auto-rows-fr mt-2">
               <Windcompass 
                 windspeed={weatherinfo!.daily.windSpeed10m} 
                 windDirection={weatherinfo!.daily.windDirection10m} 

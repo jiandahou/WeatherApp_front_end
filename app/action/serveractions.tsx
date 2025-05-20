@@ -1,5 +1,4 @@
     "use server"
-    import { json } from "node:stream/consumers"
     import { fetchWeatherApi } from "openmeteo"
     import OpenAI from "openai";
     import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
