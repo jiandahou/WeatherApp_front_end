@@ -115,7 +115,7 @@ const isLoading = !weatherinfo || weatherinfoArray.length === 0;
 console.log(weatherinfoArray)
 console.log(weatherinfo)
 return (
-    <div className="bg-gradient-to-b from-teal-300/70 to-blue-800/80 via-amber-200/80">
+    <div className="bg-[url('/MainBackground.jpg')] bg-cover bg-center">
       <div className="w-4/5 mx-auto">
         {isLoading ? (
           <div className="flex items-center justify-center min-h-screen">

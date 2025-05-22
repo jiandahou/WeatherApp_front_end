@@ -67,7 +67,7 @@ export default function MainWeatherPanel() {
     //Need get Image of background to the public files
     <div
     className={clsx(
-        "relative rounded-md bg-cover bg-center shadow-xl overflow-visible z-10  "
+        "relative rounded-md bg-cover bg-center shadow-xl overflow-visible z-10 bg-cov "
     ,"text-white drop-shadow-md")}
 
     style={{
