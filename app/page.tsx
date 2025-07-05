@@ -1,6 +1,6 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
-import { GetTheCityInfo, GetTheCityInfoByLola, GetWeatherForecast, ReverseGeocoding } from "./action/serveractions"
+import { useEffect } from "react"
+import { GetTheCityInfoByLola, GetWeatherForecast } from "./action/serveractions"
 import TopBar from "./component/topBar"
 import MainWeatherPanel from "./component/mainWeatherPanel"
 import TenDayForcastingPanel from "./component/tenDayForcastingPanel"
@@ -11,40 +11,26 @@ import Pressure from "./component/Pressure"
 import Visibility from "./component/Visibility"
 import SkeletonLoader from "./skeleton/SkeletonLoader"
 import { useSelector } from 'react-redux';
-import { RootState,AppDispatch} from './store/store';
-import {pushWeatherinfoArray, selectLocation,selectWeatherinfo,selectWeatherinfoArray,setWeatherinfo,setWeatherState,fetchAndSetInfo} from "./store/slice/weatherSlice" 
+import { RootState, AppDispatch } from './store/store';
+import { selectLocation, selectWeatherinfo, selectWeatherinfoArray, setWeatherState, fetchAndSetInfo } from "./store/slice/weatherSlice"
 import { useDispatch } from 'react-redux';
+import Image from "next/image";
+import LoginButton from "./component/loginButton"
+
 export default function Home() {
   function getDefaultCity(): string {
     const lang = navigator.language.toLowerCase();
-    if (lang.startsWith('zh')) {
-        return "Beijing";
-    }
-    if (lang.startsWith('ja')) {
-        return "Tokyo";
-    }
-    if (lang.startsWith('fr')) {
-        return "Paris";
-    }
-    if (lang.startsWith('es')) {
-        return "Madrid";
-    }
-    if (lang.startsWith('de')) {
-        return "Berlin";
-    }
-    if (lang.startsWith('ko')) {
-        return "Seoul";
-    }
-    if (lang.startsWith('ru')) {
-        return "Moscow";
-    }
-    if (lang.startsWith('en')) {
-        return "Sydney";
-    }
-
+    if (lang.startsWith('zh')) return "Beijing";
+    if (lang.startsWith('ja')) return "Tokyo";
+    if (lang.startsWith('fr')) return "Paris";
+    if (lang.startsWith('es')) return "Madrid";
+    if (lang.startsWith('de')) return "Berlin";
+    if (lang.startsWith('ko')) return "Seoul";
+    if (lang.startsWith('ru')) return "Moscow";
+    if (lang.startsWith('en')) return "Sydney";
     return "Sydney";
-}
-function getCurrentPositionAsync(): Promise<GeolocationPosition> {
+  }
+  function getCurrentPositionAsync(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
         reject(new Error("Geolocation not supported"));
@@ -54,88 +40,104 @@ function getCurrentPositionAsync(): Promise<GeolocationPosition> {
     });
   }
 
-  var weatherinfo=useSelector(selectWeatherinfo)
-  var weatherinfoArray=useSelector(selectWeatherinfoArray)
-  var cityName=useSelector(selectLocation)
+  const weatherinfo = useSelector(selectWeatherinfo)
+  const isLoading = !weatherinfo; 
+  const weatherinfoArray = useSelector(selectWeatherinfoArray)
+  const cityName = useSelector(selectLocation)
   const dispatch = useDispatch<AppDispatch>();
+
   async function fetchUserLocationWeather() {
     try {
       const position = await getCurrentPositionAsync();
       const { longitude, latitude } = position.coords;
-      const cityInfo = await GetTheCityInfoByLola(longitude, latitude);
-      const locationName = cityInfo?.value?.name;
-      if (!locationName) {
-        throw new Error("No location name");
-      }
-      const weatherData = await GetWeatherForecast(latitude, longitude);
-      weatherData.daily.location = locationName;
-  
-      console.log("successfully get location-based weather:", weatherData);
-      dispatch(setWeatherState(weatherData));
-  
+      Promise.all([
+        GetTheCityInfoByLola(longitude, latitude),
+        GetWeatherForecast(latitude, longitude)
+      ]).then(([cityInfo, weatherData]) => {
+        const locationName = cityInfo?.value?.name;
+        if (!locationName) throw new Error("No location name");
+        weatherData.daily.location = locationName;
+        console.log("Fetched weather data for user location:", weatherData, new Date(Date.now()).toLocaleString());
+        dispatch(setWeatherState(weatherData));
+      });
     } catch (err) {
       const defaultCity = getDefaultCity();
       await dispatch(fetchAndSetInfo({ name: defaultCity, setCurrentInfo: true }));
     }
   }
-useEffect(() => {
-    async function loadCitiesFromCookies() {
-        const cityCookie = Cookies.get("city");
-        if (!cityCookie) return;
-        try {
-          const parsed = JSON.parse(cityCookie);
-          
-          if (!Array.isArray(parsed) || !parsed.every((c) => typeof c === "string" && c.trim() !== "")) {
-            console.warn("Invalid cookie format, resetting...");
-            Cookies.remove("city");
-            return;
-          }
-          const allCities = parsed as string[];
-          for (const city of allCities) {
-            const alreadyExists = weatherinfoArray.find(
-              (weatherinfo) => weatherinfo?.daily.location === city
-            );
-      
-            if (!alreadyExists) {
-              await dispatch(fetchAndSetInfo({ name: city, setCurrentInfo: false }));
-            }
-          }
-        } catch (error) {
-          console.error("Failed to parse city cookie:", error);
-          Cookies.remove("city");
-        }
-      }
-      async function init() {
-        await fetchUserLocationWeather();       
-        await loadCitiesFromCookies();         
-      }
-      init()
-}, []);
-const isLoading = !weatherinfo || weatherinfoArray.length === 0;
-console.log(weatherinfoArray)
-console.log(weatherinfo)
-return (
-    <div className="bg-[url('/MainBackground.jpg')] bg-cover bg-center">
-      <div className="w-4/5 mx-auto">
+
+  useEffect(() => {
+async function loadCitiesFromCookies() {
+  const cityCookie = Cookies.get("city");
+  if (!cityCookie) return;
+  try {
+    const parsed = JSON.parse(cityCookie);
+    if (!Array.isArray(parsed) || !parsed.every((c) => typeof c === "string" && c.trim() !== "")) {
+      Cookies.remove("city");
+      return;
+    }
+    const allCities = parsed as string[];
+    const citiesToFetch = allCities.filter(
+      (city) => !weatherinfoArray.find(
+        (weatherinfo) => weatherinfo?.daily.location === city
+      )
+    );
+    await Promise.all(
+      citiesToFetch.map(city =>
+        dispatch(fetchAndSetInfo({ name: city, setCurrentInfo: false }))
+      )
+    );
+
+  } catch (error) {
+    Cookies.remove("city");
+  }
+}
+    async function init() {
+      fetchUserLocationWeather(); // 优先
+      loadCitiesFromCookies()
+    }
+    init();
+    // eslint-disable-next-line
+  }, []);
+
+
+  return (
+    <div className="relative min-h-screen">
+      {/* 模糊低清背景 */}
+      <Image
+        src="/MainBackground-blur.jpg"
+        alt="blur-bg"
+        fill
+        style={{ objectFit: "cover", zIndex: 0, filter: "blur(16px)", transition: "opacity 0.5s" }}
+        priority
+      />
+      {/* 高清背景 */}
+      <Image
+        src="/MainBackground.jpg"
+        alt="main-bg"
+        fill
+        style={{ objectFit: "cover", zIndex: 1, transition: "opacity 0.5s" }}
+        priority
+      />
+      <div className="relative z-10 w-4/5 mx-auto">
         {isLoading ? (
-          <div className="flex items-center justify-center min-h-screen">
+          <div >
             <SkeletonLoader />
           </div>
         ) : (
           <>
             <TopBar />
-            <MainWeatherPanel/>
+            <MainWeatherPanel />
             <div className="bg-white-transparent">
-              <TenDayForcastingPanel 
-                hourlyinfo={weatherinfo!.hourly} 
+              <TenDayForcastingPanel
+                hourlyinfo={weatherinfo!.hourly}
               />
             </div>
             <div className="grid grid-cols-12 auto-rows-fr mt-2">
-              <Windcompass 
-              />
-              <FeelsLike 
-                apparent_temperature={weatherinfo!.daily.apparentTemperatureNow} 
-                temperature={weatherinfo!.daily.temperatureNow} 
+              <Windcompass />
+              <FeelsLike
+                apparent_temperature={weatherinfo!.daily.apparentTemperatureNow}
+                temperature={weatherinfo!.daily.temperatureNow}
               />
               <Pressure Pressure={weatherinfo!.daily.pressureMsl} />
               <Visibility visibility={weatherinfo!.hourly[0].visibility} />

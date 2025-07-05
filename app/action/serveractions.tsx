@@ -80,6 +80,7 @@
         }
         const url = "https://api.open-meteo.com/v1/forecast";
         const responses = await fetchWeatherApi(url, params);
+        console.log("GetWeatherForecast:", Date.now(),responses);
         const range = (start: number, stop: number, step: number) =>
             Array.from({ length: (stop - start) / step }, (_, i) => start + i * step);
         const response = responses[0];
@@ -277,6 +278,7 @@
                 throw new Error(`Network response was not ok: ${response.status}`);
             }
             const data = await response.json();
+            console.log("Fetching data by:", new Date(Date.now()).toLocaleString(), data);
             return data;
         } catch (error) {
             console.error('Fetch error:', error);
@@ -289,6 +291,5 @@
         return fetchFromBackend(`/name/${encodedName}`);
     }
 
-    export async function GetTheCityInfoByLola(longitude: number, latitude: number) {
-        return fetchFromBackend(`/location/${longitude}/${latitude}`);
+    export async function GetTheCityInfoByLola(longitude: number, latitude: number) {        return fetchFromBackend(`/location/${longitude}/${latitude}`);
     }

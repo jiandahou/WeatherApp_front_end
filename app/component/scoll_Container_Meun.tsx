@@ -29,11 +29,10 @@ export default function ScollContainerMeun(){
             if (!buttons.length) return;
             const last = buttons[buttons.length - 1];
             const io = new IntersectionObserver(
-              ([entry]) => (console.log("intersectionObserver triggered" +entry.intersectionRatio),setAtRight(entry.intersectionRatio === 1)),
+              ([entry]) => (setAtRight(entry.intersectionRatio === 1)),
               {  threshold: 1 }
             );
             io.observe(last);
-            console.log(last.innerText)
             return () => io.disconnect();
           }, [ButtonNumber]);
         

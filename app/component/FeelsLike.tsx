@@ -8,7 +8,6 @@ function FeelsLike({ apparent_temperature, temperature }:{apparent_temperature:n
         // define a random amount of milliseconds for the animation
         const duration = 1000;
         const value=30-30*((apparent_temperature+50)/100)
-        console.log(value)
         // describe the values assumed by the rectangle
         // translated vertically from its original position to 0 and then back slightly to hide more content
         const translate = [

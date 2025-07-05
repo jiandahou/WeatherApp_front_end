@@ -101,7 +101,7 @@ export const weatherSlice=createSlice(
                     state.error = undefined;
                   })
                   .addCase(fetchAndSetInfo.fulfilled, (state, action) => {
-                    console.log("Fetched weather data:", action.payload.data);
+                    console.log("Fetched weather data:", action.payload.data,new Date(Date.now()).toLocaleString());
                     state.loading = false;
                     const { data, setCurrentInfo, updateCookie } = action.payload;
                     state.weatherinfoArray.push(data);

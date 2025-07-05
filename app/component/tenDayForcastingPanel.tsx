@@ -112,23 +112,17 @@ export function ButtonPanleForTenDay({onClick}:{onClick:Function}){
         var margin=parseFloat(window.getComputedStyle(buttonelement).margin)
         maxButtonnumber.current=Math.floor(divref.current!.getBoundingClientRect().width/(buttonelement.getBoundingClientRect().width+margin))
         buttonNumber.current=buttondivref.current!.getElementsByClassName("button").length
-        console.log("maxButtonnumber.current" +maxButtonnumber.current)
-        console.log("indexOnpage"+indexOnpage)
     },[activeOnpage])
     function turnleft(){
         let offset=(activeOnpage>indexOnpage-maxButtonnumber.current)?1:0
         let indexToScroll=(indexOnpage-maxButtonnumber.current+offset<0)?0:indexOnpage-maxButtonnumber.current+offset
         buttondivref.current!.getElementsByClassName("button")[indexToScroll].scrollIntoView({inline:"start",block:"center"})
-        setIndexOnpage(indexToScroll)
-        console.log(buttondivref.current!.getElementsByTagName("button")[indexToScroll])
-    }
+        setIndexOnpage(indexToScroll)    }
     function turnright(){
         let offset=(activeOnpage<indexOnpage+maxButtonnumber.current)?1:0
         let indexToScroll=(indexOnpage+maxButtonnumber.current-offset>=buttonNumber.current)?buttonNumber.current-1:indexOnpage+maxButtonnumber.current-offset
         buttondivref.current!.getElementsByClassName("button")[indexToScroll].scrollIntoView({inline:"start",block:"center"})
-        setIndexOnpage(indexToScroll)
-        console.log("indexToScroll"+indexToScroll)
-    }
+        setIndexOnpage(indexToScroll)    }
     let offset=(activeOnpage<indexOnpage+maxButtonnumber.current&&activeOnpage>=indexOnpage)?1:0
     return(
         <div ref={divref} className="relative my-5">
