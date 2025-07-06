@@ -16,6 +16,7 @@ import { selectLocation, selectWeatherinfo, selectWeatherinfoArray, setWeatherSt
 import { useDispatch } from 'react-redux';
 import Image from "next/image";
 import LoginButton from "./component/loginButton"
+export const dynamic = 'force-static';
 
 export default function Home() {
   function getDefaultCity(): string {
@@ -103,17 +104,8 @@ async function loadCitiesFromCookies() {
 
   return (
     <div className="relative min-h-screen">
-      {/* 模糊低清背景 */}
       <Image
         src="/MainBackground-blur.jpg"
-        alt="blur-bg"
-        fill
-        style={{ objectFit: "cover", zIndex: 0, filter: "blur(16px)", transition: "opacity 0.5s" }}
-        priority
-      />
-      {/* 高清背景 */}
-      <Image
-        src="/MainBackground.jpg"
         alt="main-bg"
         fill
         style={{ objectFit: "cover", zIndex: 1, transition: "opacity 0.5s" }}
