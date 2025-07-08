@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -45,8 +44,19 @@ export function WeatherSVGMotion({
   }, [])
 
   const now = new Date()
-  const isNow = (t: Date) =>
-    t.getHours() === now.getHours() && t.getDate() === now.getDate()
+  
+  // 修复：安全的日期比较函数
+  const isNow = (timeValue: any) => {
+    const t = timeValue instanceof Date ? timeValue : new Date(timeValue)
+    return t.getHours() === now.getHours() && t.getDate() === now.getDate()
+  }
+
+  // 修复：安全的日期转换函数
+  const getDateObject = (timeValue: any): Date => {
+    if (!timeValue) return new Date()
+    if (timeValue instanceof Date) return timeValue
+    return new Date(timeValue)
+  }
 
   const slice = hourlyinfo.slice(indexOnpage * 24, (indexOnpage + 1) * 24)
   if (slice.length < 2) return null
@@ -58,16 +68,18 @@ export function WeatherSVGMotion({
   const stepX = width / (slice.length - 1)
   const usableHeight = height - padding * 2
 
+  // 修复：确保所有时间处理都使用安全的日期转换
   const points = slice.map((h, i) => {
+    const timeObj = getDateObject(h.time)
     const x = i * stepX
     const y = padding + (1 - (h.temperature2m - minT) / range) * usableHeight
     return {
       x,
       y,
       temp: h.temperature2m,
-      hour: h.time.getHours(),
+      hour: timeObj.getHours(), // 修复：使用转换后的 Date 对象
       rain: h.precipitationProbability,
-      time: h.time,
+      time: timeObj, // 修复：使用转换后的 Date 对象
     }
   })
 
@@ -82,6 +94,7 @@ export function WeatherSVGMotion({
     return path
   })()
 
+  // 修复：使用安全的时间比较
   const nowIndex = points.findIndex(p => isNow(p.time))
 
   return (

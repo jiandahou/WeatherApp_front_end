@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from "react-redux"
 import { selectLocation, selectWeatherinfo, selectWeatherinfoArray, setWeatherinfo } from "../store/slice/weatherSlice"
 import { AppDispatch } from "../store/store"
 import { motion } from "motion/react"
+import Image from 'next/image'; 
+
 export default function LocationNavButton({weather}:{
        weather:locationWeather,
         }){
@@ -26,7 +28,7 @@ export default function LocationNavButton({weather}:{
         layout
          className="ml-1 my-1 flex items-center flex-row px-3 py-1 mr-4 flex-none rounded-lg bg-white-transparent transition-colors duration-150 ease-in-out hover:bg-white/80 shadow-md hover:shadow-xl snap-start" onClick={(e)=>{navButtonOnclick()}}>
             <p className="flex-1 font-medium " >{weather.location!=undefined?weather.location:weathername}</p>
-            <img title={weathername} src={weathername+".svg" } onError={(e)=>(e.currentTarget.src="sun.svg")} className="mx-0.5 w-8"></img>
+            <Image title={weathername} src={`/${weathername}.svg`} alt="weather" onError={(e)=>(e.currentTarget.src="sun.svg")} className="mx-0.5 w-8" />
             <div className="text-base font-semibold" >{Math.round(weather.temperatureNow)+"°"}</div>
         </motion.button>
         )

@@ -1,6 +1,7 @@
 import path from 'path';
 import React, { useEffect } from 'react';
 import anime from 'animejs';
+import Image from 'next/image';
 function FeelsLike({ apparent_temperature, temperature }:{apparent_temperature:number,temperature:number}) {
     function animate(){
                 // target the rectangle fabricating the clipPath element
@@ -46,7 +47,7 @@ function FeelsLike({ apparent_temperature, temperature }:{apparent_temperature:n
   return (
     <div className='flex col-span-12 sm:col-span-6 rounded-lg bg-white/80 border-2 border-sky-200/80 flex-col items-center justify-between flex-1'>
       <div className='flex'>
-        <img src="ApparentTemperature.png" width={25} height={25} alt="Apparent Temperature" />
+        <Image src="/ApparentTemperature.png" width={25} height={25} alt="Apparent Temperature" />
         <span className='text-lg'>Feels Like</span>
       </div>
       <div className=' w-max'>

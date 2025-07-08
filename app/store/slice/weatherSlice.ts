@@ -54,7 +54,7 @@ export const fetchAndSetInfo = createAsyncThunk<
 
       const { longitude, latitude } = cityInfo.value;
       const weatherData = await GetWeatherForecast(latitude, longitude);
-      weatherData.daily.location = name;
+      weatherData!.daily.location = name;
       return { data: weatherData, setCurrentInfo, updateCookie };
     } catch (error) {
       return rejectWithValue("Unexpected error");

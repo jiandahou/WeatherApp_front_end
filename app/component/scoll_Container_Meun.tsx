@@ -2,6 +2,8 @@
 import LocationNavButtonPanel from "./location_NavButton_panel";
 import {useCallback, useEffect, useRef, useState } from 'react';
 import { motion } from "motion/react"
+import Image from 'next/image';
+
 export default function ScollContainerMeun(){
         var panelref=useRef<HTMLDivElement>(null);
         var [buttonIndex,setbuttonindex]=useState<number>(0)
@@ -69,7 +71,7 @@ export default function ScollContainerMeun(){
                 transition-colors duration-200 ease-in-out
                 "
             >
-                <img src="leftarrow.svg" alt="Left arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
+                <Image src="/leftarrow.svg" alt="Left arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
             </motion.button>
             <LocationNavButtonPanel  ref={panelref} />
             <motion.button
@@ -88,7 +90,7 @@ export default function ScollContainerMeun(){
                 transition-colors duration-200 ease-in-out
                 "
             >
-                <img src="rightarrow.svg" alt="Right arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
+                <Image src="/rightarrow.svg" alt="Right arrow" className="sm:w-5 sm:h-5" width={20} height={20}/>
             </motion.button>
         </div>
     )

@@ -57,16 +57,6 @@
         })
         return completion.choices[0].message.content
     }
-    export async function  ReverseGeocoding(latitude:number,longitude:number){
-        var info:any={}
-        await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`)
-        .then((responds)=>{return responds.json()})
-        .then(data=>{info["city"]=data["address"]["city"],
-            info["country"]=data["address"]["country"]
-        })
-        console.log(info)
-        return info
-    }
     export async function GetWeatherForecast(this: any, la:number,long:number) {
         const params = {
             "latitude": la,
@@ -264,14 +254,14 @@
         console.log(hourlyForecastInfo[0])
         return{ daily:weahterInfoTodayWithHourlyForNextTenDay,
                 hourly:hourlyForecastInfo
-        }
+        } as weatherinfoFetched;
         
     }
     async function fetchFromBackend(endpoint: string) {
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
         try {
             const response = await fetch(`${baseUrl}${endpoint}`,{
-            next: { revalidate: 86400 } 
+            cache: 'force-cache'
             });
             console.log('🔍 Fetching from backend: ', `${baseUrl}${endpoint}`);
             if (!response.ok) {

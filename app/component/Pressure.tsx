@@ -1,5 +1,5 @@
 import React from 'react'
-
+import Image from 'next/image'
 function Pressure({Pressure}:{Pressure:number}) {
     let pressureStatus;
     let color;
@@ -22,7 +22,7 @@ function Pressure({Pressure}:{Pressure:number}) {
   return (
     <div className='flex col-span-12 sm:col-span-6 rounded-lg bg-white/80 border-2 border-sky-200/80 flex-col items-center justify-between flex-1'>
     <div className='flex'>
-      <img src="Pressure.png" width={25} height={25} alt="Pressure.png" />
+      <Image src="/Pressure.png" width={25} height={25} alt="Pressure.png" />
       <span className='text-lg'>Pressure</span>
     </div>
     <div className='w-max'>

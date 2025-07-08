@@ -1,5 +1,5 @@
 import React from 'react'
-
+import Image from 'next/image'
 function Visibility({visibility}:{visibility:number}) {
     let visibilityStatus;
     let colorClass;
@@ -25,7 +25,7 @@ function Visibility({visibility}:{visibility:number}) {
   return (
     <div className='flex col-span-12 sm:col-span-6 rounded-lg bg-white/80 border-2 border-sky-200/80 flex-col items-center justify-between flex-1'>
     <div className='flex'>
-      <img src="Visibility.svg" width={25} height={25} alt="Visibility.png" />
+      <Image src="/Visibility.svg" width={25} height={25} alt="Visibility.png" />
       <span className='text-lg'>Visibility</span>
     </div>
     <div className='w-max'>
