@@ -34,6 +34,7 @@ export async function searchCitiesByName(cityName: string) {
  */
 export async function getCityByRangeKey(rangeKey: string) {
   try {
+    // 修改这里：getCitybyRangeKey -> getCitbyRangeKey
     const result = await client.queries.getCitybyRangeKey({
       rangeKey: rangeKey.trim()
     });

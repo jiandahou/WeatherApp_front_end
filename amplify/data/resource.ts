@@ -23,7 +23,7 @@ const schema = a.schema({
     latitude: a.float(),              
     longitude: a.float(),
   }),
-  getCitbyRangeKey: a
+  getCitybyRangeKey: a
   .query()
   .arguments({
     rangeKey: a.string().required(),
@@ -33,7 +33,7 @@ const schema = a.schema({
   .handler(
     a.handler.custom({
       dataSource: "ExternalPostTableDataSource",
-      entry: "./getCitbyRangeKey.js",
+      entry: "./getCitybyRangeKey.js",
     })
   ),
 
