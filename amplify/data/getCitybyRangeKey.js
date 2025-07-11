@@ -1,11 +1,6 @@
+import { util } from '@aws-appsync/utils';
 import * as ddb from '@aws-appsync/utils/dynamodb';
 
-/**
- * DynamoDB resolver for searching cities by rangeKey (city name)
- * 支持精确匹配和模糊搜索
- * @param {Object} ctx - The context object containing request information
- * @returns {Object} - The DynamoDB query request
- */
 export function request(ctx) {
   const { rangeKey } = ctx.arguments;
 
@@ -15,17 +10,9 @@ export function request(ctx) {
 
   const searchTerm = rangeKey.trim();
 
+  // Using the simplified ddb utility syntax
   return ddb.scan({
-    filter: {
-      expression: '#rangeKey = :exactMatch OR contains(#rangeKey, :searchTerm)',
-      expressionNames: {
-        '#rangeKey': 'rangeKey'
-      },
-      expressionValues: {
-        ':exactMatch': searchTerm,
-        ':searchTerm': searchTerm
-      }
-    },
+    filter: { rangeKey: { contains: searchTerm } },
     limit: 50
   });
 }
@@ -46,7 +33,8 @@ export function response(ctx) {
     return [];
   }
 
-  const items = result.items;
+  // 只保留有 rangeKey 字段的城市
+  const items = result.items.filter(item => typeof item.rangeKey === 'string');
   const searchTerm = (ctx.arguments.rangeKey || '').trim().toLowerCase();
 
   const sortedItems = items.sort((a, b) => {

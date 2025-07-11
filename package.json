@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@aws-appsync/utils": "^2.0.3",
     "@radix-ui/react-slot": "^1.2.3",
     "@reduxjs/toolkit": "^2.7.0",
     "animejs": "^3.2.2",
