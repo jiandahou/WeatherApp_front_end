@@ -26,8 +26,8 @@ export function request(ctx) {
         '#rangeKey': 'rangeKey'
       },
       expressionValues: {
-        ':exactMatch': searchTerm,  // 自动处理 DynamoDB 类型转换
-        ':searchTerm': searchTerm
+        ':exactMatch': util.dynamodb.toDynamoDB(searchTerm),
+        ':searchTerm': util.dynamodb.toDynamoDB(searchTerm)
       }
     },
     limit: 50  // 扫描更多结果以确保找到最相关的城市

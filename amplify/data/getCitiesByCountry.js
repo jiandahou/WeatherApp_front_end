@@ -1,4 +1,5 @@
 import { util } from '@aws-appsync/utils';
+import * as ddb from '@aws-appsync/utils/dynamodb';
 
 /**
  * DynamoDB resolver for getting cities by country
@@ -8,26 +9,24 @@ import { util } from '@aws-appsync/utils';
 export function request(ctx) {
   const { country } = ctx.arguments;
   
-  if (country && country.length > 0) {
-    return {
-      operation: 'Scan',
-      filter: {
-        expression: '#country = :country',
-        expressionNames: {
-          '#country': 'country'
-        },
-        expressionValues: {
-          ':country': { S: country.toUpperCase() }
-        }
-      },
-      limit: 50
-    };
+  if (!country || country.trim().length === 0) {
+    return ddb.scan({
+      limit: 0
+    });
   }
   
-  return {
-    operation: 'Scan',
-    limit: 0
-  };
+  return ddb.scan({
+    filter: {
+      expression: '#country = :country',
+      expressionNames: {
+        '#country': 'country'
+      },
+      expressionValues: {
+        ':country': { S: country.trim() }  // DynamoDB 字符串格式
+      }
+    },
+    limit: 100
+  });
 }
 
 /**
@@ -42,9 +41,13 @@ export function response(ctx) {
     util.error(error.message, error.type);
   }
   
-  // 按城市名称排序
-  const items = result.items || [];
-  return items.sort((a, b) => {
+  if (!result || !result.items) {
+    return [];
+  }
+  
+  const items = result.items.sort((a, b) => {
     return a.rangeKey.localeCompare(b.rangeKey);
   });
+  
+  return items.slice(0, 20);
 }

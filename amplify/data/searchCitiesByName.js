@@ -26,12 +26,12 @@ export function request(ctx) {
         '#rangeKey': 'rangeKey'
       },
       expressionValues: {
-        ':exactMatch': searchTerm,
-        ':searchTerm': searchTerm,
-        ':lowerSearchTerm': lowerSearchTerm
+        ':exactMatch': { S: searchTerm },
+        ':searchTerm': { S: searchTerm },
+        ':lowerSearchTerm': { S: lowerSearchTerm }
       }
     },
-    limit: 50  // 扫描更多结果以确保找到最相关的城市
+    limit: 100  // 扫描更多结果以确保找到最相关的城市
   });
 }
 
@@ -47,8 +47,12 @@ export function response(ctx) {
     util.error(error.message, error.type);
   }
   
+  if (!result || !result.items) {
+    return [];
+  }
+  
   // 对结果进行排序，优先显示完全匹配的结果
-  const items = result.items || [];
+  const items = result.items;
   const searchTerm = ctx.arguments.cityName.toLowerCase().trim();
   
   const sortedItems = items.sort((a, b) => {
