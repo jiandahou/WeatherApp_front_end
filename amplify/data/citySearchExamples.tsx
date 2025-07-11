@@ -17,7 +17,7 @@ const client = generateClient<Schema>();
 export async function searchCitiesByName(cityName: string) {
   try {
     const result = await client.queries.searchCitiesByName({
-      cityName: cityName.trim()
+      rangeKey: cityName.trim()
     });
     
     return result.data || [];
