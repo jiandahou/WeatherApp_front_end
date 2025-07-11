@@ -2,11 +2,6 @@ import { util } from '@aws-appsync/utils';
 import * as ddb from '@aws-appsync/utils/dynamodb';
 
 export function request(ctx) {
-  // 最简实现：只扫描1条记录用于测试
-  return ddb.scan({ limit: 1 });
-  
-  // 以下是完整实现，先注释掉以便部署
-  /*
   const { country } = ctx.arguments;
   
   if (!country || country.trim().length === 0) {
@@ -18,15 +13,9 @@ export function request(ctx) {
     filter: { country: { eq: country.trim() } },
     limit: 50
   });
-  */
 }
 
 export function response(ctx) {
-  // 最简实现：直接返回结果
-  return ctx.result?.items || [];
-  
-  // 以下是完整实现，先注释掉以便部署
-  /*
   if (ctx.error) {
     util.error(`Error processing request: ${ctx.error.message}`, 'CustomErrorType');
     return [];
@@ -34,15 +23,6 @@ export function response(ctx) {
   
   const items = ctx.result?.items || [];
   
-  // Make sure to check if the property exists before sorting
-  const sortedItems = items.sort((a, b) => {
-    // Use a property that definitely exists in your items
-    // Replace 'name' with whatever property you want to sort by
-    const aValue = (a.name || '').toLowerCase();
-    const bValue = (b.name || '').toLowerCase();
-    return aValue.localeCompare(bValue);
-  });
-  
-  return sortedItems.slice(0, 10);
-  */
+  // 简单实现：直接返回结果，不进行复杂排序
+  return items.slice(0, 10);
 }
