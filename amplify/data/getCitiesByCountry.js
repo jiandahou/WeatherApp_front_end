@@ -1,53 +1,40 @@
 import { util } from '@aws-appsync/utils';
-import * as ddb from '@aws-appsync/utils/dynamodb';
 
 /**
  * DynamoDB resolver for getting cities by country
- * @param {Object} ctx - The context object containing request information
- * @returns {Object} - The DynamoDB query request
  */
 export function request(ctx) {
   const { country } = ctx.arguments;
-  
   if (!country || country.trim().length === 0) {
-    return ddb.scan({
+    return {
+      operation: 'Scan',
       limit: 0
-    });
+    };
   }
-  
-  return ddb.scan({
+  return {
+    operation: 'Scan',
     filter: {
       expression: '#country = :country',
       expressionNames: {
         '#country': 'country'
       },
       expressionValues: {
-        ':country': { S: country.trim() }  // DynamoDB 字符串格式
+        ':country': { S: country.trim() }
       }
     },
-    limit: 100
-  });
+    limit: 50
+  };
 }
 
-/**
- * Process the DynamoDB response
- * @param {Object} ctx - The context object containing response information
- * @returns {Array} - Array of city objects matching the search criteria
- */
 export function response(ctx) {
-  const { error, result } = ctx;
-  
-  if (error) {
-    util.error(error.message, error.type);
-  }
-  
-  if (!result || !result.items) {
+  if (ctx.error) {
     return [];
   }
-  
-  const items = result.items.sort((a, b) => {
-    return a.rangeKey.localeCompare(b.rangeKey);
+  const items = ctx.result?.items || [];
+  const sortedItems = items.sort((a, b) => {
+    const aName = (a.rangeKey || '').toLowerCase();
+    const bName = (b.rangeKey || '').toLowerCase();
+    return aName.localeCompare(bName);
   });
-  
-  return items.slice(0, 20);
+  return sortedItems.slice(0, 10);
 }
