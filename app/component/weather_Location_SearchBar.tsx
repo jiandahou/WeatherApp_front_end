@@ -1,65 +1,73 @@
 "use client"
 import { useCallback, useEffect, useMemo, useState } from 'react';
-//changing the json to mysql request would be better choice 
-import cities from '../cities.json';
 import { fetchAndSetInfo } from '../store/slice/weatherSlice';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store/store';
 import { useDebounce } from 'use-debounce';
 import { AnimatePresence, motion } from 'motion/react';
+import { generateClient } from 'aws-amplify/data';
+import { type Schema } from '@/amplify/data/resource';
 
+// 使用 Amplify 生成的类型
+type City = Schema["City"]["type"];
 
 export default function WeatherLocationSearchBar(){
-    var [result,setResult]=useState([] as any[]);
+    var [result,setResult]=useState<City[]>([]);
     var [input,setInput]=useState("");
     const [debounced] = useDebounce(input, 250);
     const [openSearchbox, setOpenSearchbox] = useState(false);
 
     const dispatch = useDispatch<AppDispatch>()
-    const cityList = useMemo(() => 
-        Object.values(cities).map((city: any) => ({
-          name: city.name,
-          lat: parseFloat(city.lat),
-          lng: parseFloat(city.lng),
-          country: city.country,
-        })),
-        []
-      );
-    type city={
-        name:string ,
-        lat: number,
-        lng: number,
-        country: string,
-    }
+
     const loseFocus = useCallback(() => {
         setInput('');
         setResult([]);
     }, []);
+
+    const client = generateClient<Schema>();
+    
     const searchBarOnclick = useCallback((name: string) => {
         dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true }));
-        setTimeout(() => loseFocus(), 100);;
-      }, [dispatch, loseFocus]);
-    function checkresult(input:string){
-        return cityList.filter((city=>city.name.toLowerCase().includes(input.toLowerCase())))
-        .sort((s1:city,s2:city)=>{
-                if(s1.name.toLowerCase().startsWith(input.toLowerCase()) &&!s2.name.toLowerCase().startsWith(input.toLowerCase())){
-                    return -1
-                }
-                else if(!s1.name.toLowerCase().startsWith(input.toLowerCase()) &&s2.name.toLowerCase().startsWith(input.toLowerCase())){
-                    return 1
-                }
-                else{
-                    if(s1.name.toLowerCase().indexOf(input.toLowerCase())<s2.name.toLowerCase().indexOf(input.toLowerCase())){
-                        return -1
-                    }
-                    else if(s1.name.toLowerCase().indexOf(input.toLowerCase())>s2.name.toLowerCase().indexOf(input.toLowerCase())){
-                        return 1
-                    }
-                    return s1.name.localeCompare(s2.name,"en")
-                }       
-                })
-}
-    const Checkresult =useCallback(checkresult,[cityList])
+        setTimeout(() => loseFocus(), 100);
+    }, [dispatch, loseFocus]);
+
+    async function checkresult(input: string): Promise<City[]> {
+        const result: City[] = [];
+        
+        const exactMatch = await client.models.City.list({
+            filter: {
+                name: { eq: input }
+            },
+            limit: 5
+        });
+        
+        result.push(...exactMatch.data);
+        
+        if (exactMatch.data.length < 5) {
+            const prefixMatch = await client.models.City.list({
+                filter: {
+                    name: { beginsWith: input }
+                },
+                limit: 5 - exactMatch.data.length
+            });
+            
+            result.push(...prefixMatch.data);
+            
+            if (prefixMatch.data.length + exactMatch.data.length < 5) {
+                const suffixMatch = await client.models.City.list({
+                    filter: {
+                        name: { contains: input }
+                    },
+                    limit: 5 - (prefixMatch.data.length + exactMatch.data.length)
+                });
+                
+                result.push(...suffixMatch.data);
+            }
+        }
+        
+        return result;
+    }
+    const Checkresult =useCallback(checkresult,[])
     const handleClickOutside = useCallback((e: MouseEvent) => {
         if (!(e.target as HTMLElement).closest('.search-container')) {
           loseFocus();
@@ -74,11 +82,22 @@ export default function WeatherLocationSearchBar(){
       }, [handleClickOutside]);
     useEffect(() => {
         if (!debounced) {
-          loseFocus();
+            loseFocus();
         } else {
-          setResult(Checkresult(debounced));
+            // 使用异步函数处理
+            const searchCities = async () => {
+                try {
+                    const cities = await Checkresult(debounced);
+                    setResult(cities);
+                } catch (error) {
+                    console.error('Search error:', error);
+                    setResult([]);
+                }
+            };
+            
+            searchCities();
         }
-      }, [debounced, loseFocus,Checkresult]);
+    }, [debounced, loseFocus, Checkresult]);
       useEffect(() => {
       setOpenSearchbox(input.length > 0);
       }, [input]);

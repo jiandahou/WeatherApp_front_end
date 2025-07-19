@@ -12,63 +12,21 @@ const schema = a.schema({
       content: a.string(),
     })
     .authorization((allow) => [allow.guest()]),
-      
-    City: a.customType({
-    hashKey: a.string().required(),   
-    rangeKey: a.string().required(),  
-    admin1: a.string(),
-    admin2: a.string(),               
-    country: a.string(),
-    geoHash: a.string(),
-    latitude: a.float(),              
-    longitude: a.float(),
-  }),
-  getCitybyRangeKey: a
-  .query()
-  .arguments({
-    rangeKey: a.string().required(),
-  })
-  .returns(a.ref("City").array())
-  .authorization((allow) => [allow.publicApiKey()])
-  .handler(
-    a.handler.custom({
-      dataSource: "ExternalPostTableDataSource",
-      entry: "./getCitybyRangeKey.js",
-    })
-  ),
 
-  searchCitiesByName: a
-  .query()
-  .arguments({
-    cityName: a.string().required(),
-  })
-  .returns(a.ref("City").array())
-  .authorization((allow) => [allow.publicApiKey()])
-  .handler(
-    a.handler.custom({
-      dataSource: "ExternalPostTableDataSource",
-      entry: "./searchCitiesByName.js",
+  City: a
+    .model({
+      name: a.string().required(),
+      lat: a.float().required(),
+      lng: a.float().required(),
+      country: a.string().required(),
+      admin1: a.string(),
+      admin2: a.string()
     })
-  ),
-
-  getCitiesByCountry: a
-  .query()
-  .arguments({
-    country: a.string().required(),
-  })
-  .returns(a.ref("City").array())
-  .authorization((allow) => [allow.publicApiKey()])
-  .handler(
-    a.handler.custom({
-      dataSource: "ExternalPostTableDataSource",
-      entry: "./getCitiesByCountry.js",
-    })
-  ),
-  });
+    .identifier(['name']) 
+    .authorization((allow) => [allow.guest()])
+});
 
 export type Schema = ClientSchema<typeof schema>;
-
-
 
 export const data = defineData({
   schema,
