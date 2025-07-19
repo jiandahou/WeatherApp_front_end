@@ -208,28 +208,6 @@ dynamodb-pipeline:
       aws:
         sts_role_arn: "${openSearchIntegrationPipelineRole.roleArn}"
         region: "${backend.data.stack.region}"
-  processor:
-    # 添加数据转换处理器
-    - mutate:
-        rename:
-          "dynamodb-document": "document"
-    # 创建 location 字段，组合 lat 和 lng
-    - script:
-        source: |
-          // 检查是否有 lat 和 lng 字段
-          if (event.get("document/lat") != null && event.get("document/lng") != null) {
-            // 获取 lat 和 lng 值
-            def lat = event.get("document/lat");
-            def lng = event.get("document/lng");
-            
-            // 创建 location 字段，使用 OpenSearch geo_point 格式
-            // 格式: "lat,lon" 或者 {"lat": lat_value, "lon": lng_value}
-            event.put("document/location", [
-              "lat": lat,
-              "lon": lng
-            ]);
-          }
-          return [event];
   sink:
     - opensearch:
         hosts:
