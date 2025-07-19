@@ -42,7 +42,7 @@ const schema = a.schema({
     })
     .returns(a.ref('SearchResult').array())
     .handler(a.handler.custom({ entry: './searchCities.js' , dataSource: "osDataSource"}))
-    .authorization((allow) => [allow.guest()]),
+    .authorization((allow) => [allow.publicApiKey()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
