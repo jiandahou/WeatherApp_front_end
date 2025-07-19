@@ -5,8 +5,10 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../store/store';
 import { useDebounce } from 'use-debounce';
 import { AnimatePresence, motion } from 'motion/react';
+import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '@/amplify/data/resource';
+import amplifyOutputs from '@/amplify_outputs.json';
 
 // 使用 Amplify 生成的类型
 type City = Schema["City"]["type"];
@@ -19,54 +21,68 @@ export default function WeatherLocationSearchBar(){
 
     const dispatch = useDispatch<AppDispatch>()
 
+    // 使用 useMemo 确保 Amplify 只配置一次，client 只创建一次
+    const client = useMemo(() => {
+        Amplify.configure(amplifyOutputs);
+        return generateClient<Schema>();
+    }, []);
+
     const loseFocus = useCallback(() => {
         setInput('');
         setResult([]);
     }, []);
-
-    const client = generateClient<Schema>();
     
     const searchBarOnclick = useCallback((name: string) => {
         dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true }));
         setTimeout(() => loseFocus(), 100);
     }, [dispatch, loseFocus]);
 
-    async function checkresult(input: string): Promise<City[]> {
+    const checkresult = useCallback(async (input: string): Promise<City[]> => {
         const result: City[] = [];
         
-        const exactMatch = await client.models.City.list({
-            filter: {
-                name: { eq: input }
-            },
-            limit: 5
-        });
+        try {
+            // 策略1: 精确匹配（使用主键，最快）
+            const exactMatch = await client.models.City.get({ name: input });
+            if (exactMatch.data) {
+                result.push(exactMatch.data);
+                if (result.length >= 5) return result;
+            }
+        } catch (error) {
+            // 精确匹配没找到，继续其他策略
+        }
         
-        result.push(...exactMatch.data);
-        
-        if (exactMatch.data.length < 5) {
+        if (result.length < 5) {
             const prefixMatch = await client.models.City.list({
                 filter: {
                     name: { beginsWith: input }
                 },
-                limit: 5 - exactMatch.data.length
+                limit: 5 - result.length
             });
             
-            result.push(...prefixMatch.data);
+            // 过滤掉已经在结果中的城市
+            const newCities = prefixMatch.data.filter(
+                city => !result.some(r => r.name === city.name)
+            );
+            result.push(...newCities);
+        }
+        
+        if (result.length < 5) {
+            const suffixMatch = await client.models.City.list({
+                filter: {
+                    name: { contains: input }
+                },
+                limit: 5 - result.length
+            });
             
-            if (prefixMatch.data.length + exactMatch.data.length < 5) {
-                const suffixMatch = await client.models.City.list({
-                    filter: {
-                        name: { contains: input }
-                    },
-                    limit: 5 - (prefixMatch.data.length + exactMatch.data.length)
-                });
-                
-                result.push(...suffixMatch.data);
-            }
+            const newCities = suffixMatch.data.filter(
+                city => !result.some(r => r.name === city.name)
+            );
+            result.push(...newCities);
         }
         
         return result;
-    }
+    }, [client]);
+
     const Checkresult =useCallback(checkresult,[])
     const handleClickOutside = useCallback((e: MouseEvent) => {
         if (!(e.target as HTMLElement).closest('.search-container')) {
