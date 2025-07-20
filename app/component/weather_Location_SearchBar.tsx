@@ -10,21 +10,18 @@ import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '@/amplify/data/resource';
 import amplifyOutputs from '@/amplify_outputs.json';
 
-// 使用 OpenSearch 搜索结果类型（如果你添加了 SearchResult 类型）
-// 如果没有，就继续使用 City 类型
+
 type City = Schema["SearchResult"]["type"];
-// type SearchResult = Schema["SearchResult"]["type"]; // 如果你添加了这个类型
 
 export default function WeatherLocationSearchBar(){
     var [result, setResult] = useState<City[]>([]);
     var [input, setInput] = useState("");
-    const [isLoading, setIsLoading] = useState(false); // 添加加载状态
+    const [isLoading, setIsLoading] = useState(false); 
     const [debounced] = useDebounce(input, 250);
     const [openSearchbox, setOpenSearchbox] = useState(false);
 
     const dispatch = useDispatch<AppDispatch>()
 
-    // 使用 useMemo 确保 Amplify 只配置一次，client 只创建一次
     const client = useMemo(() => {
         Amplify.configure(amplifyOutputs);
         return generateClient<Schema>({ authMode: 'apiKey' });
@@ -37,33 +34,27 @@ export default function WeatherLocationSearchBar(){
     }, []);
     
     const searchBarOnclick = useCallback((name: string) => {
+        const index=name.indexOf('(');
+        if (index !== -1) {
+            name = name.slice(0, index).trim();
+        }
         dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true }));
         setTimeout(() => loseFocus(), 100);
     }, [dispatch, loseFocus]);
 
-    // 修改为使用 OpenSearch 的查询函数
     const checkresult = useCallback(async (input: string): Promise<City[]> => {
-        console.group(`🔍 OpenSearch 搜索: "${input}"`);
-        
-        // 输入太短时不搜索
         if (!input || input.length < 2) {
-            console.log('❌ 查询太短，跳过搜索');
-            console.groupEnd();
             return [];
         }
         
         try {
             setIsLoading(true);
             
-            // 尝试使用 OpenSearch 查询
             const response = await client.queries.searchCities({
                 query: input.trim(),
                 limit: 5
             });
-            
-            console.log(`✅ OpenSearch 搜索结果: ${response.data?.length || 0} 个`);
-            
-            // 转换搜索结果为 City 类型（如果需要）
+                        
             const cities: City[] = (response.data || [])
                 .filter((result): result is NonNullable<typeof result> => !!result)
                 .map(result => ({
@@ -78,14 +69,10 @@ export default function WeatherLocationSearchBar(){
             console.groupEnd();
             return cities;
             
-        } catch (error) {
-            console.log('❌ OpenSearch 失败，回退到 DynamoDB 搜索');
-            
-            // 如果 OpenSearch 失败，回退到原来的 DynamoDB 查询
+        } catch (error) {            
             const result: City[] = [];
             
             try {
-                // 策略1: 精确匹配
                 const exactMatch = await client.models.City.get({ name: input });
                 if (exactMatch.data) {
                     result.push(exactMatch.data);
@@ -95,7 +82,6 @@ export default function WeatherLocationSearchBar(){
                     }
                 }
             } catch (e) {
-                // 继续其他策略
             }
             
             if (result.length < 5) {
@@ -112,12 +98,8 @@ export default function WeatherLocationSearchBar(){
                     );
                     result.push(...newCities);
                 } catch (e) {
-                    console.log('前缀匹配也失败了');
                 }
             }
-            
-            console.log(`📊 DynamoDB 备用搜索结果: ${result.length} 个`);
-            console.groupEnd();
             return result;
             
         } finally {
@@ -171,7 +153,7 @@ export default function WeatherLocationSearchBar(){
                 <motion.input
                   type="text"
                   value={input}
-                  placeholder="Search cities with OpenSearch..."
+                  placeholder="Search cities here..."
                   onChange={(e) => setInput(e.target.value)}
                   className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                   whileFocus={{ scale: 1.02 }}
