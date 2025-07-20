@@ -41,7 +41,7 @@ const schema = a.schema({
       limit: a.integer(),
     })
     .returns(a.ref('SearchResult').array())
-    .handler(a.handler.custom({ entry: './searchCities.js' , dataSource: "osDataSource"})),
+    .handler(a.handler.custom({ entry: './searchCities.js' , dataSource: "osDataSource"})).authorization((allow) => [allow.guest()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
