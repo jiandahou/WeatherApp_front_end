@@ -12,7 +12,7 @@ export function request(ctx) {
 
   return {
     version: '2018-05-29',
-    operation: 'GET',
+    operation: 'POST',
     path: '/city/_search',
     params: {
       headers: {

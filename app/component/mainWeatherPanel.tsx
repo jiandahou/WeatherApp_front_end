@@ -109,7 +109,7 @@
                             <div className=" text-lg">{weathername}</div>
                             <div className="sm:flex hidden sm:block">
                                 <div>Apparent Temperature</div>
-                                <Image src="/ApparentTemperature.png" alt="Apparent Temperature" className=" size-7" />
+                                <Image src="/ApparentTemperature.png" width={25} height={25} alt="Apparent Temperature" className=" size-7" />
                                 <div>{Math.round(weatherNow.apparentTemperatureNow)}°</div>
                         </div>
                         </div>

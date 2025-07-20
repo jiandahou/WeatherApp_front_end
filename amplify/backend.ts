@@ -8,6 +8,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import { storage } from "./storage/resource";
 import * as osis from "aws-cdk-lib/aws-osis";
 import * as logs from "aws-cdk-lib/aws-logs";
+import { AccessPolicy } from 'aws-cdk-lib/aws-eks';
 /**
  * @see https://docs.amplify.aws/react/build-a-backend/ to add storage, functions, and more
  */
@@ -37,7 +38,7 @@ const tableName = backend.data.resources.tables['City'].tableName;
 
 
 // Create the OpenSearch domain
-const openSearchDomain = new opensearch.Domain(
+const openSearchDomain: opensearch.Domain = new opensearch.Domain(
   backend.data.stack,
   'OpenSearchDomain',
   {
@@ -55,7 +56,7 @@ const openSearchDomain = new opensearch.Domain(
     encryptionAtRest: {
       enabled: true
     }
-  }
+  },
 );
 
 // Get the S3Bucket ARN
