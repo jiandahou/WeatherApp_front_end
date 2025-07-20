@@ -27,7 +27,7 @@ export default function WeatherLocationSearchBar(){
     // 使用 useMemo 确保 Amplify 只配置一次，client 只创建一次
     const client = useMemo(() => {
         Amplify.configure(amplifyOutputs);
-        return generateClient<Schema>();
+        return generateClient<Schema>({ authMode: 'apiKey' });
     }, []);
 
     const loseFocus = useCallback(() => {

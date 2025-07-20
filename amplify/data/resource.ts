@@ -11,7 +11,7 @@ const schema = a.schema({
     .model({
       content: a.string(),
     })
-    .authorization((allow) => [allow.guest()]),
+    .authorization((allow) => [allow.publicApiKey()]),
 
   City: a
     .model({
@@ -23,7 +23,7 @@ const schema = a.schema({
       admin2: a.string()
     })
     .identifier(['name']) 
-    .authorization((allow) => [allow.guest()]),
+    .authorization((allow) => [allow.publicApiKey()]),
 
   SearchResult: a.customType({
     name: a.string().required(),
@@ -41,7 +41,8 @@ const schema = a.schema({
       limit: a.integer(),
     })
     .returns(a.ref('SearchResult').array())
-    .handler(a.handler.custom({ entry: './searchCities.js' , dataSource: "osDataSource"})).authorization((allow) => [allow.guest()]),
+    .handler(a.handler.custom({ entry: './searchCities.js' , dataSource: "osDataSource"}))
+    .authorization(allow => [allow.publicApiKey()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -49,7 +50,11 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'identityPool',
+    defaultAuthorizationMode: 'apiKey', // 改为 apiKey
+    apiKeyAuthorizationMode: {
+      expiresInDays: 30,
+    },
+    // 同时保持 identityPool 支持
   },
 });
 
