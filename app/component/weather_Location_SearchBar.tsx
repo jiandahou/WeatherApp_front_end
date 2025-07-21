@@ -32,13 +32,13 @@ export default function WeatherLocationSearchBar(){
         setResult([]);
         setIsLoading(false);
     }, []);
-    
-    const searchBarOnclick = useCallback((name: string) => {
+
+    const searchBarOnclick = useCallback((name: string, longitude: number, latitude: number) => {
         const index=name.indexOf('(');
         if (index !== -1) {
             name = name.slice(0, index).trim();
         }
-        dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true }));
+        dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true, longitude, latitude }));
         setTimeout(() => loseFocus(), 100);
     }, [dispatch, loseFocus]);
 
@@ -128,7 +128,6 @@ export default function WeatherLocationSearchBar(){
         if (!debounced) {
             loseFocus();
         } else {
-            // 使用异步函数处理
             const searchCities = async () => {
                 try {
                     const cities = await Checkresult(debounced);
@@ -194,7 +193,7 @@ export default function WeatherLocationSearchBar(){
                                 <button
                                   className="w-full rounded-lg text-left truncate"
                                   onClick={(e) => {
-                                    searchBarOnclick(result.name);
+                                    searchBarOnclick(result.name, result.lng, result.lat);
                                     loseFocus();
                                   }}
                                 >
