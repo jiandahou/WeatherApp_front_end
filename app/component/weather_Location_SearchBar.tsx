@@ -9,6 +9,7 @@ import { Amplify } from 'aws-amplify';
 import { generateClient } from 'aws-amplify/data';
 import { type Schema } from '@/amplify/data/resource';
 import amplifyOutputs from '@/amplify_outputs.json';
+import Image from 'next/image';
 
 
 type City = Schema["SearchResult"]["type"];
@@ -199,13 +200,11 @@ export default function WeatherLocationSearchBar(){
                                 >
                                   <div className="flex justify-between items-center">
                                     <span>{result.name}</span>
+                                    <div>
+                                    <img src={`https://flagcdn.com/w20/${result.country.toLowerCase()}.png`} alt={result.country} width={16} height={16} />
                                     <span className="text-xs text-gray-400">{result.country}</span>
-                                  </div>
-                                  {result.admin1 && (
-                                    <div className="text-xs text-gray-500">
-                                      {result.admin1}
                                     </div>
-                                  )}
+                                  </div>
                                 </button>
                               </li>
                             ))
