@@ -41,11 +41,11 @@ function safelyUpdateCityCookie(newCity: string) {
 }
 export const fetchAndSetInfo = createAsyncThunk<
   { data: weatherinfoFetched, setCurrentInfo: boolean, updateCookie: boolean }, 
-  { name: string, setCurrentInfo?: boolean, updateCookie?: boolean, longitude?: number, latitude?: number }, 
+  { name: string, setCurrentInfo?: boolean, updateCookie?: boolean, longitude?: number, latitude?: number, country?: string }, 
   { rejectValue: string }
 >(
   'weather/fetchAndSetInfo',
-  async ({ name, setCurrentInfo = true, updateCookie = false, longitude, latitude}, { rejectWithValue }) => {
+  async ({ name, setCurrentInfo = true, updateCookie = false, longitude, latitude, country }, { rejectWithValue }) => {
     try {
       if(longitude!=undefined && latitude!=undefined) {
         const weatherData = await GetWeatherForecast(latitude, longitude);
@@ -53,6 +53,7 @@ export const fetchAndSetInfo = createAsyncThunk<
           return rejectWithValue("Failed to fetch weather data");
         }
         weatherData.daily.location = name;
+        weatherData.daily.country = country;
         return { data: weatherData, setCurrentInfo, updateCookie };
       }
       const cityInfo = await GetTheCityInfo(name);
@@ -63,6 +64,7 @@ export const fetchAndSetInfo = createAsyncThunk<
      const { longitude: lng, latitude: lat } = cityInfo.value;
       const weatherData = await GetWeatherForecast(lat, lng);
       weatherData!.daily.location = name;
+      weatherData!.daily.country = cityInfo.value.country;
       return { data: weatherData, setCurrentInfo, updateCookie };
     } catch (error) {
       return rejectWithValue("Unexpected error");

@@ -18,7 +18,7 @@ export default async function CityPage({
   }
   
   const data = await response.json();
-  const { longitude, latitude } = data.value;
+  const { longitude, latitude, country } = data.value;
   console.log(`${baseUrl}/api/weather/${latitude}/${longitude}`);
   const weatherData = await fetch(`${baseUrl}/weather/${latitude}/${longitude}`, {
     method: 'GET',
@@ -34,7 +34,8 @@ export default async function CityPage({
   
   const weatherInfo = await weatherData.json();
   weatherInfo.daily.location = city; // Ensure the location is set correctly
-  
+  weatherInfo.daily.country = country;
+
   return (
     <ReduxProvider params={weatherInfo}>
         <Weather></Weather>

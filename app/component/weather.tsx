@@ -56,8 +56,10 @@ export default function Weather() {
         GetWeatherForecast(latitude, longitude)
       ]).then(([cityInfo, weatherData]) => {
         const locationName = cityInfo?.value?.name;
+        const country = cityInfo?.value?.country;
         if (!locationName) throw new Error("No location name");
         weatherData!.daily.location = locationName;
+        weatherData!.daily.country = country;
         console.log("Fetched weather data for user location:", weatherData, new Date(Date.now()).toLocaleString());
         dispatch(setWeatherState(weatherData));
       });

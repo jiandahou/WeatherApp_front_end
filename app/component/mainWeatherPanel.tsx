@@ -1,4 +1,4 @@
-    "use client"
+"use client"
     import { ReactNode, useEffect, useState} from "react";
     import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
     import { useSelector } from "react-redux";
@@ -85,10 +85,32 @@
             }}>
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="pt-4 text-center sm:text-left">
-                <div className="px-4 max-w-md">
-                    <div className="bg-black/50 backdrop-blur-md rounded-lg p-4 text-white">
-                        <div className="text-lg font-semibold">Weather Now</div>
-                        <div className="text-base">{timeString} </div>
+                <div className="flex flex-col sm:flex-row items-center justify-between px-4">
+                    <div className="max-w-md">
+                        <div className="bg-black/50 backdrop-blur-md rounded-lg p-4 text-white">
+                            <div className="text-lg font-semibold">Weather Now</div>
+                            <div className="text-base">{timeString} </div>
+                        </div>
+                    </div>
+                    <div>
+                            <div className="bg-black/50 backdrop-blur-md rounded-lg p-4 text-white">
+                            <div className="text-lg font-semibold">Current City: {weatherNow.location}</div>
+                            {
+                            weatherNow.country ? (
+                            <div className="text-base">
+                                Country: {weatherNow.country} 
+                                <img 
+                                    src={`https://flagcdn.com/w20/${weatherNow.country.toLowerCase()}.png`} 
+                                    alt={weatherNow.country} 
+                                    width={16} 
+                                    height={16} 
+                                    className="inline ml-2"
+                                />
+                            </div>
+                            ) : (
+                                <div className="text-base">Country: Unknown</div>
+                            )}
+                            </div>
                     </div>
                 </div>
                 <div className="p-4 ">

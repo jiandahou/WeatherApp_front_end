@@ -54,7 +54,7 @@ export default function ScollContainerMeun(){
               [buttonIndex + 1].scrollIntoView({ inline: "start", block: "nearest",behavior: "smooth" });
           }
     return(
-        <div className="flex sm:ml-2 sm:grow shrink sm:w-0 mt-2">
+        <div className="flex items-center sm:ml-2 sm:grow shrink sm:w-0 mt-2">
             <motion.button
                 whileHover={{scale:1.1}}
                 whileTap={{scale:0.8}}

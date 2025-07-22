@@ -34,12 +34,12 @@ export default function WeatherLocationSearchBar(){
         setIsLoading(false);
     }, []);
 
-    const searchBarOnclick = useCallback((name: string, longitude: number, latitude: number) => {
+    const searchBarOnclick = useCallback((name: string, longitude: number, latitude: number, country: string) => {
         const index=name.indexOf('(');
         if (index !== -1) {
             name = name.slice(0, index).trim();
         }
-        dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true, longitude, latitude }));
+        dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true, longitude, latitude, country }));
         setTimeout(() => loseFocus(), 100);
     }, [dispatch, loseFocus]);
 
@@ -149,7 +149,7 @@ export default function WeatherLocationSearchBar(){
     
     return(
         <div className='sm:w-64 search-container shrink-0 space-y-4 z-20 mt-2'>
-            <div className="flex flex-row rounded-lg border-gray-400 relative backdrop-blur-md bg-white/40">
+            <div className="flex flex-row rounded-lg border-gray-400 relative backdrop-blur-md bg-white/40 items-center">
                 <motion.input
                   type="text"
                   value={input}
@@ -194,7 +194,7 @@ export default function WeatherLocationSearchBar(){
                                 <button
                                   className="w-full rounded-lg text-left truncate"
                                   onClick={(e) => {
-                                    searchBarOnclick(result.name, result.lng, result.lat);
+                                    searchBarOnclick(result.name, result.lng, result.lat, result.country);
                                     loseFocus();
                                   }}
                                 >

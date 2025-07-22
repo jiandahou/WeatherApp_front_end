@@ -41,6 +41,7 @@ type locationWeather={
     recipitationProbabilityMax:number,
     weatherForNextTenDay:Array<weatherdailyinfo>
     location?:string
+    country?:string
 }
 type hourlyForecast={
     time: Date,
