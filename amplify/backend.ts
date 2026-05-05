@@ -242,7 +242,7 @@ const cfnPipeline = new osis.CfnPipeline(
     maxUnits: 4,
     minUnits: 1,
     pipelineConfigurationBody: openSearchTemplate,
-    pipelineName: "dynamodb-integration-2",
+    pipelineName: "dynamodb-integration-3",
     logPublishingOptions: {
       isLoggingEnabled: true,
       cloudWatchLogDestination: {
