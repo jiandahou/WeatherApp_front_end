@@ -1,17 +1,11 @@
 import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any unauthenticated user can "create", "read", "update", 
-and "delete" any "Todo" records.
-=========================================================================*/
 const schema = a.schema({
   Todo: a
     .model({
       content: a.string(),
     })
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [allow.guest()]),
 
   City: a
     .model({
@@ -23,7 +17,7 @@ const schema = a.schema({
       admin2: a.string()
     })
     .identifier(['name']) 
-    .authorization((allow) => [allow.publicApiKey()]),
+    .authorization((allow) => [allow.guest().to(['read'])]),
 
   SearchResult: a.customType({
     name: a.string().required(),
@@ -42,7 +36,7 @@ const schema = a.schema({
     })
     .returns(a.ref('SearchResult').array())
     .handler(a.handler.custom({ entry: './searchCities.js' , dataSource: "osDataSource"}))
-    .authorization(allow => [allow.publicApiKey()]),
+    .authorization(allow => [allow.guest()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -50,11 +44,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'apiKey', // 改为 apiKey
-    apiKeyAuthorizationMode: {
-      expiresInDays: 30,
-    },
-    // 同时保持 identityPool 支持
+    defaultAuthorizationMode: 'identityPool',
   },
 });
 
