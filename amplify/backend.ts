@@ -229,7 +229,7 @@ dynamodb-pipeline:
 
 // Create a CloudWatch log group
 const logGroup = new logs.LogGroup(backend.data.stack, "LogGroup", {
-  logGroupName: "/aws/vendedlogs/OpenSearchService/pipelines/1",
+  logGroupName: "/aws/vendedlogs/OpenSearchService/pipelines/2",
   removalPolicy: RemovalPolicy.DESTROY,
 });
 
