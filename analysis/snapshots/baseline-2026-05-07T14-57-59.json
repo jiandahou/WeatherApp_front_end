@@ -1,0 +1,127 @@
+{
+  "summary": {
+    "Files scanned": 38,
+    "\"use client\" count": 11,
+    "\"use server\" count": 4,
+    "API routes": 3,
+    "useEffect+fetch pattern": 0,
+    "dotenv import (bad)": 2,
+    "console.log in source": 9,
+    "reactStrictMode enabled": false,
+    "TypeScript strict": true
+  },
+  "metrics": {
+    "capturedAt": "2026-05-07T14:57:59.875Z",
+    "files": {
+      "total": 38,
+      "tsx": 30,
+      "ts": 6,
+      "css": 1,
+      "json": 1
+    },
+    "directives": {
+      "useClient": [
+        "app/component/location_NavButton.tsx",
+        "app/component/location_NavButton_panel.tsx",
+        "app/component/mainWeatherPanel.tsx",
+        "app/component/scoll_Container_Meun.tsx",
+        "app/component/tenDayForcastingPanel.tsx",
+        "app/component/topBar.tsx",
+        "app/component/weather.tsx",
+        "app/component/weather_Location_SearchBar.tsx",
+        "app/layout.tsx",
+        "app/oldversion/page.tsx",
+        "app/provider/reduxProvider.tsx"
+      ],
+      "useServer": [
+        "app/action/serveractions.tsx",
+        "app/api/weather/route.ts",
+        "app/api/weatherSummary/route.ts",
+        "app/weather/testforecasting.tsx"
+      ],
+      "apiRoutes": [
+        "app/api/testEnv/route.ts",
+        "app/api/weather/route.ts",
+        "app/api/weatherSummary/route.ts"
+      ]
+    },
+    "patterns": {
+      "useEffect_fetches": [],
+      "consoleLog_in_component": [
+        "app/action/serveractions.tsx",
+        "app/api/weatherSummary/route.ts",
+        "app/component/location_NavButton.tsx",
+        "app/component/weather.tsx",
+        "app/component/weatherClientSide.tsx",
+        "app/oldversion/page.tsx",
+        "app/store/slice/weatherSlice.ts",
+        "app/weather/testforecasting.tsx",
+        "app/weather/[city]/page.tsx"
+      ],
+      "hardcoded_env": [],
+      "dotenv_import": [
+        "app/action/serveractions.tsx",
+        "app/api/testEnv/route.ts"
+      ]
+    },
+    "dependencies": {
+      "production": {
+        "@aws-appsync/utils": "^2.0.3",
+        "@radix-ui/react-slot": "^1.2.3",
+        "@reduxjs/toolkit": "^2.7.0",
+        "animejs": "^3.2.2",
+        "aws-amplify": "^6.15.3",
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "dotenv": "^16.5.0",
+        "js-cookie": "^3.0.5",
+        "lucide-react": "^0.511.0",
+        "moment": "^2.30.1",
+        "motion": "^12.12.1",
+        "next": "^14.2.4",
+        "openai": "^4.100.0",
+        "openmeteo": "^1.1.3",
+        "react": "^18",
+        "react-dom": "^18",
+        "react-redux": "^9.2.0",
+        "swr": "^2.3.3",
+        "tailwind-merge": "^3.3.0",
+        "tailwindcss-animate": "^1.0.7",
+        "use-debounce": "^10.0.4"
+      },
+      "devDependencies": {
+        "@aws-amplify/backend": "^1.16.1",
+        "@aws-amplify/backend-cli": "^1.7.2",
+        "@next/bundle-analyzer": "^16.2.5",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@types/animejs": "^3.1.12",
+        "@types/js-cookie": "^3.0.6",
+        "@types/node": "^20",
+        "@types/react": "^18",
+        "@types/react-dom": "^18",
+        "@vitejs/plugin-react": "^4.7.0",
+        "aws-cdk-lib": "^2.189.1",
+        "constructs": "^10.4.2",
+        "cross-env": "^10.1.0",
+        "esbuild": "^0.25.6",
+        "eslint": "^8",
+        "eslint-config-next": "14.2.3",
+        "jsdom": "^29.1.1",
+        "postcss": "^8",
+        "tailwindcss": "^3.4.1",
+        "tsx": "^4.0.0",
+        "typescript": "^5.8.3",
+        "vitest": "^1.6.1"
+      }
+    },
+    "nextConfig": {
+      "reactStrictMode": false,
+      "outputStandalone": true,
+      "hasBundleAnalyzer": true
+    },
+    "typecheck": {
+      "strictMode": true
+    }
+  }
+}
