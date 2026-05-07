@@ -55,7 +55,15 @@ const openSearchDomain: opensearch.Domain = new opensearch.Domain(
     removalPolicy: RemovalPolicy.DESTROY,
     encryptionAtRest: {
       enabled: true
-    }
+    },
+    accessPolicies: [
+      new iam.PolicyStatement({
+        effect: iam.Effect.ALLOW,
+        principals: [new iam.AccountRootPrincipal()],
+        actions: ['es:*'],
+        resources: ['*'],
+      }),
+    ],
   },
 );
 
