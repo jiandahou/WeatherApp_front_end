@@ -2,7 +2,7 @@ import withBundleAnalyzer from '@next/bundle-analyzer';
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    reactStrictMode: false, // Phase 1 will enable this
+    reactStrictMode: true,
     output: "standalone",
 };
 

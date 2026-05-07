@@ -1,11 +1,7 @@
-    "use server"
-    import { fetchWeatherApi } from "openmeteo"
-    import OpenAI from "openai";
-    import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
-    import dotenv from 'dotenv';
-    if (process.env.NODE_ENV === 'production') {
-        dotenv.config({ path: '.env.production.local' });
-        }
+"use server"
+import { fetchWeatherApi } from "openmeteo"
+import OpenAI from "openai";
+import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 
     
     export async function GetWeatherSummary(weatherInfo:locationWeather) {

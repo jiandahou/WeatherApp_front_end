@@ -97,6 +97,6 @@ describe('Server Actions – smoke', () => {
       sunshineDuration: 40000,
     } as any);
     expect(typeof summary).toBe('string');
-    expect(summary.length).toBeGreaterThan(0);
+    expect((summary ?? '').length).toBeGreaterThan(0);
   });
 });

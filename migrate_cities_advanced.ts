@@ -8,7 +8,7 @@ import amplifyOutputs from './amplify_outputs.json';
 
 Amplify.configure(amplifyOutputs);
 
-const client = generateClient<Schema>();
+const client = generateClient<Schema>({ authMode: 'apiKey' });
 
 interface CityData {
   name: string;
@@ -29,7 +29,7 @@ interface MigrationResult {
 class CityMigrator {
   private batchSize = 25;
   private maxRetries = 3;
-  private retryDelay = 1000; // 1秒
+  private retryDelay = 1000; // 1 second
 
   async sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -48,11 +48,11 @@ class CityMigrator {
 
       return { success: true, city: city.name };
     } catch (error: any) {
-      console.error(`❌ 创建城市失败 (尝试 ${retryCount + 1}): ${city.name}`, error.message);
+      console.error(`❌ Failed to create city (attempt ${retryCount + 1}): ${city.name}`, error.message);
       
       if (retryCount < this.maxRetries) {
-        console.log(`🔄 重试创建城市: ${city.name}`);
-        await this.sleep(this.retryDelay * (retryCount + 1)); // 递增延迟
+        console.log(`🔄 Retrying city: ${city.name}`);
+        await this.sleep(this.retryDelay * (retryCount + 1)); // incremental delay
         return this.createCityWithRetry(city, retryCount + 1);
       }
       
@@ -61,25 +61,25 @@ class CityMigrator {
   }
 
   async migrate() {
-    console.log('🚀 开始高级城市数据迁移...');
+    console.log('🚀 Starting city data migration...');
     
     try {
-      // 读取数据
+      // Load data
       const citiesPath = path.join(__dirname, 'app', 'cities.json');
       if (!fs.existsSync(citiesPath)) {
-        throw new Error(`城市数据文件不存在: ${citiesPath}`);
+        throw new Error(`Cities data file not found: ${citiesPath}`);
       }
 
       const citiesData: CityData[] = JSON.parse(fs.readFileSync(citiesPath, 'utf-8'));
-      console.log(`📊 总共需要迁移 ${citiesData.length} 个城市`);
+      console.log(`📊 Total cities to migrate: ${citiesData.length}`);
 
-      // 验证数据
+      // Validate data
       const invalidCities = citiesData.filter(city => 
         !city.name || !city.lat || !city.lng || !city.country
       );
       
       if (invalidCities.length > 0) {
-        console.warn(`⚠️  发现 ${invalidCities.length} 个无效城市数据，将跳过`);
+        console.warn(`⚠️  Found ${invalidCities.length} invalid city records, skipping`);
       }
 
       const validCities = citiesData.filter(city => 
@@ -90,20 +90,20 @@ class CityMigrator {
       let errorCount = 0;
       const failedCities: string[] = [];
 
-      // 分批处理
+      // Process in batches
       for (let i = 0; i < validCities.length; i += this.batchSize) {
         const batch = validCities.slice(i, i + this.batchSize);
         const batchNumber = Math.floor(i / this.batchSize) + 1;
         const totalBatches = Math.ceil(validCities.length / this.batchSize);
         
-        console.log(`📦 处理批次 ${batchNumber}/${totalBatches} (${batch.length} 个城市)`);
+        console.log(`📦 Processing batch ${batchNumber}/${totalBatches} (${batch.length} cities)`);
 
-        // 并行处理当前批次
+        // Process batch in parallel
         const results = await Promise.allSettled(
           batch.map(city => this.createCityWithRetry(city))
         );
 
-        // 统计结果
+        // Tally results
         results.forEach((result, index) => {
           if (result.status === 'fulfilled') {
             if (result.value.success) {
@@ -118,45 +118,45 @@ class CityMigrator {
           }
         });
 
-        // 显示进度
+        // Show progress
         const progress = Math.round(((i + batch.length) / validCities.length) * 100);
-        console.log(`✅ 批次 ${batchNumber} 完成 - 进度: ${progress}% (成功: ${successCount}, 失败: ${errorCount})`);
+        console.log(`✅ Batch ${batchNumber} done - Progress: ${progress}% (success: ${successCount}, failed: ${errorCount})`);
 
-        // 批次间延迟
+        // Delay between batches
         if (i + this.batchSize < validCities.length) {
           await this.sleep(200);
         }
       }
 
-      // 输出最终结果
-      console.log('\n🎉 迁移完成!');
-      console.log(`📈 总结:`);
-      console.log(`   ✅ 成功: ${successCount}`);
-      console.log(`   ❌ 失败: ${errorCount}`);
-      console.log(`   📊 成功率: ${Math.round((successCount / (successCount + errorCount)) * 100)}%`);
+      // Print final summary
+      console.log('\n🎉 Migration complete!');
+      console.log(`📈 Summary:`);
+      console.log(`   ✅ Success: ${successCount}`);
+      console.log(`   ❌ Failed: ${errorCount}`);
+      console.log(`   📊 Success rate: ${Math.round((successCount / (successCount + errorCount)) * 100)}%`);
 
-      // 保存失败的城市列表
+      // Save failed cities list
       if (failedCities.length > 0) {
         const failedCitiesPath = path.join(__dirname, 'failed_cities.json');
         fs.writeFileSync(failedCitiesPath, JSON.stringify(failedCities, null, 2));
-        console.log(`📄 失败的城市列表已保存到: ${failedCitiesPath}`);
+        console.log(`📄 Failed cities saved to: ${failedCitiesPath}`);
       }
 
     } catch (error) {
-      console.error('💥 迁移过程中发生严重错误:', error);
+      console.error('💥 Critical error during migration:', error);
       throw error;
     }
   }
 }
 
-// 运行迁移
+// Run migration
 const migrator = new CityMigrator();
 migrator.migrate()
   .then(() => {
-    console.log('✨ 迁移脚本执行完成');
+    console.log('✨ Migration script completed');
     process.exit(0);
   })
   .catch((error) => {
-    console.error('💥 迁移脚本执行失败:', error);
+    console.error('💥 Migration script failed:', error);
     process.exit(1);
   });

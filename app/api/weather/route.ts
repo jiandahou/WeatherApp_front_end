@@ -1,4 +1,3 @@
-"use server"
 import { NextResponse } from 'next/server';
 import { GetWeatherForecast } from '@/app/action/serveractions'
 export async function GET(req: Request) {
