@@ -1,5 +1,22 @@
 import Weather from "@/app/component/weather";
 import ReduxProvider from "@/app/provider/reduxProvider";
+import type { Metadata } from "next";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ city: string }>;
+}): Promise<Metadata> {
+  const { city } = await params;
+  return {
+    title: `${city} Weather – WeatherApp`,
+    description: `Real-time weather forecast for ${city}: temperature, wind, precipitation, and 10-day outlook.`,
+    openGraph: {
+      title: `${city} Weather`,
+      description: `Current conditions and 10-day forecast for ${city}.`,
+    },
+  };
+}
 
 export default async function CityPage({
   params,
