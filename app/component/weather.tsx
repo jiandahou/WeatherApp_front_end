@@ -11,12 +11,11 @@ import Pressure from "../component/Pressure"
 import Visibility from "../component/Visibility"
 import SkeletonLoader from "../skeleton/SkeletonLoader"
 import { useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../store/store';
-import { selectLocation, selectWeatherinfo, selectWeatherinfoArray, setWeatherState, fetchAndSetInfo } from "../store/slice/weatherSlice"
+import { AppDispatch } from '../store/store';
+import { selectWeatherinfo, selectWeatherinfoArray, setWeatherState, fetchAndSetInfo } from "../store/slice/weatherSlice"
 import { useDispatch } from 'react-redux';
 import Image from "next/image";
 import LoginButton from "../component/loginButton"
-export const dynamic = 'force-static';
 
 export default function Weather() {
   function getDefaultCity(): string {
@@ -44,25 +43,25 @@ export default function Weather() {
   const weatherinfo = useSelector(selectWeatherinfo)
   const isLoading = !weatherinfo; 
   const weatherinfoArray = useSelector(selectWeatherinfoArray)
-  const cityName = useSelector(selectLocation)
   const dispatch = useDispatch<AppDispatch>();
 
   async function fetchUserLocationWeather() {
     try {
       const position = await getCurrentPositionAsync();
       const { longitude, latitude } = position.coords;
-      Promise.all([
+      const [cityInfo, weatherData] = await Promise.all([
         GetTheCityInfoByLola(longitude, latitude),
         GetWeatherForecast(latitude, longitude)
-      ]).then(([cityInfo, weatherData]) => {
-        const locationName = cityInfo?.value?.name;
-        const country = cityInfo?.value?.country;
-        if (!locationName) throw new Error("No location name");
-        weatherData!.daily.location = locationName;
-        weatherData!.daily.country = country;
-        console.log("Fetched weather data for user location:", weatherData, new Date(Date.now()).toLocaleString());
-        dispatch(setWeatherState(weatherData));
-      });
+      ]);
+
+      const locationName = cityInfo?.value?.name;
+      const country = cityInfo?.value?.country;
+      if (!locationName) throw new Error("No location name");
+
+      weatherData!.daily.location = locationName;
+      weatherData!.daily.country = country;
+      console.log("Fetched weather data for user location:", weatherData, new Date(Date.now()).toLocaleString());
+      dispatch(setWeatherState(weatherData));
     } catch (err) {
       const defaultCity = getDefaultCity();
       await dispatch(fetchAndSetInfo({ name: defaultCity, setCurrentInfo: true }));
@@ -96,8 +95,10 @@ async function loadCitiesFromCookies() {
   }
 }
     async function init() {
-      fetchUserLocationWeather(); // 优先
-      loadCitiesFromCookies()
+      await Promise.all([
+        fetchUserLocationWeather(),
+        loadCitiesFromCookies(),
+      ]);
     }
     init();
     // eslint-disable-next-line

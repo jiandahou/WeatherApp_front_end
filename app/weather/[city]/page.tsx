@@ -3,10 +3,18 @@ import ReduxProvider from "@/app/provider/reduxProvider";
 
 export default async function CityPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ city: string }>
+  searchParams?: { __error?: string }
 }) {
   const { city } = await params
+
+  // Dev-only shortcut to preview app/weather/[city]/error.tsx quickly.
+  if (process.env.NODE_ENV !== 'production' && searchParams?.__error === '1') {
+    throw new Error('Debug error preview for /weather/[city]');
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
   
   const response = await fetch(`${baseUrl}/name/${city}`, {
