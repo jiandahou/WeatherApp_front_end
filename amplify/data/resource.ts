@@ -17,7 +17,10 @@ const schema = a.schema({
       admin2: a.string()
     })
     .identifier(['name']) 
-    .authorization((allow) => [allow.guest().to(['read'])]),
+    .authorization((allow) => [
+      allow.guest().to(['read']),
+      allow.publicApiKey().to(['create', 'update', 'delete', 'read']),
+    ]),
 
   SearchResult: a.customType({
     name: a.string().required(),
