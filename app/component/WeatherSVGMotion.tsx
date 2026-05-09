@@ -3,6 +3,7 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { indexOnPageContext } from './context'
+import { type hourlyForecast } from '../type/weatherType'
 
 function TempertureToColor(temp: number): string {
   if (temp < 0) return "rgb(139, 164, 241)"
@@ -68,7 +69,6 @@ export function WeatherSVGMotion({
   const stepX = width / (slice.length - 1)
   const usableHeight = height - padding * 2
 
-  // 修复：确保所有时间处理都使用安全的日期转换
   const points = slice.map((h, i) => {
     const timeObj = getDateObject(h.time)
     const x = i * stepX
@@ -77,11 +77,17 @@ export function WeatherSVGMotion({
       x,
       y,
       temp: h.temperature2m,
-      hour: timeObj.getHours(), // 修复：使用转换后的 Date 对象
+      hour: timeObj.getHours(), 
       rain: h.precipitationProbability,
-      time: timeObj, // 修复：使用转换后的 Date 对象
+      time: timeObj,
     }
   })
+
+  const firstPointTime = points[0]?.time;
+  const firstPointIso = firstPointTime instanceof Date
+    ? firstPointTime.toISOString()
+    : new Date(firstPointTime).toISOString();
+  const animationKey = `${indexOnpage}-${firstPointIso}`;
 
   const d = (() => {
     let path = `M ${points[0].x + xOffset},${points[0].y} `
@@ -117,24 +123,24 @@ export function WeatherSVGMotion({
 
         {/* Fill */}
         <motion.path
-          key={`fill-${indexOnpage}`}
+          key={`fill-${animationKey}`}
           d={`${d} L ${width + xOffset} ${baselineY} L ${xOffset} ${baselineY} Z`}
           fill="url(#curveGradient)"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.3 }}
-          transition={{ duration: 1 }}
+          transition={{ duration: 0.35, ease: 'easeOut' }}
         />
 
         {/* Line */}
         <motion.path
-          key={`line-${indexOnpage}`}
+          key={`line-${animationKey}`}
           d={d}
           stroke="url(#curveGradient)"
           strokeWidth={3}
           fill="none"
-          initial={{ pathLength: 0 }}
-          animate={{ pathLength: 1 }}
-          transition={{ duration: 1.4 }}
+          initial={{ pathLength: 0, opacity: 0.7 }}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
         />
 
         {/* Highlight vertical line at current hour */}
