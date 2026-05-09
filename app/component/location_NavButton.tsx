@@ -5,6 +5,7 @@ import { selectLocation, selectWeatherinfo, selectWeatherinfoArray, setWeatherin
 import { AppDispatch } from "../store/store"
 import { motion } from "motion/react"
 import Image from 'next/image'; 
+import type { locationWeather } from "../type/weatherType";
 
 export default function LocationNavButton({weather}:{
        weather:locationWeather,

@@ -2,9 +2,10 @@
 import { fetchWeatherApi } from "openmeteo"
 import OpenAI from "openai";
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
+import type { locationWeather, weatherinfoFetched, CityInfo, weatherdailyinfo, hourlyForecast } from "../type/weatherType";
 
     
-    export async function GetWeatherSummary(weatherInfo:locationWeather) {
+    export async function GetWeatherSummary(weatherInfo: locationWeather): Promise<string | null> {
         const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     });
@@ -53,7 +54,7 @@ import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretati
         })
         return completion.choices[0].message.content
     }
-    export async function GetWeatherForecast(this: any, la:number,long:number) {
+    export async function GetWeatherForecast(la: number, long: number): Promise<weatherinfoFetched> {
         const params = {
             "latitude": la,
             "longitude": long,
@@ -253,7 +254,7 @@ import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretati
         } as weatherinfoFetched;
         
     }
-    async function fetchFromBackend(endpoint: string) {
+    async function fetchFromBackend(endpoint: string): Promise<any> {
         const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
         try {
             const response = await fetch(`${baseUrl}${endpoint}`,{
@@ -272,10 +273,11 @@ import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretati
         }
     }
 
-    export async function GetTheCityInfo(locationName: string) {
+    export async function GetTheCityInfo(locationName: string): Promise<CityInfo> {
         const encodedName = encodeURIComponent(locationName.trim());
         return fetchFromBackend(`/name/${encodedName}`);
     }
 
-    export async function GetTheCityInfoByLola(longitude: number, latitude: number) {        return fetchFromBackend(`/location/${longitude}/${latitude}`);
+    export async function GetTheCityInfoByLola(longitude: number, latitude: number): Promise<CityInfo> {
+        return fetchFromBackend(`/location/${longitude}/${latitude}`);
     }

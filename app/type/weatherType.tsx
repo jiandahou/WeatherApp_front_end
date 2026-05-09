@@ -1,5 +1,5 @@
 
-type weatherdailyinfo={
+export type weatherdailyinfo={
     highestTemperature:number,
     lowestTemperature:number,
     highestApparentTemperature:number,
@@ -14,7 +14,7 @@ type weatherdailyinfo={
     time:Date
     weathercode:number
 }
-type locationWeather={
+export type locationWeather={
     time:Date
     temperatureNow:number,
     apparentTemperatureNow:number,
@@ -43,7 +43,7 @@ type locationWeather={
     location?:string
     country?:string
 }
-type hourlyForecast={
+export type hourlyForecast={
     time: Date,
     temperature2m:number,
     relativeHumidity2m:number,
@@ -59,6 +59,16 @@ type hourlyForecast={
     soilTemperature0cm: number,
     soilMoisture0To1cm: number,
 }
-type weatherinfoFetched={
+export type weatherinfoFetched={
     daily:locationWeather,
     hourly:hourlyForecast[]}|undefined
+
+export type CityInfo = {
+    status: "success" | string;
+    value?: {
+        longitude: number;
+        latitude: number;
+        country?: string;
+        name?: string;
+    };
+}

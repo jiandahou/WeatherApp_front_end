@@ -1,3 +1,4 @@
+import type { weatherdailyinfo, hourlyForecast } from '../type/weatherType';
 /* eslint-disable react/jsx-key */
 "use client"
 import clsx from "clsx"

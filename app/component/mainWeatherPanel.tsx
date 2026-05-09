@@ -1,3 +1,4 @@
+import type { locationWeather } from '../type/weatherType';
 "use client"
     import { ReactNode, useEffect, useState} from "react";
     import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";

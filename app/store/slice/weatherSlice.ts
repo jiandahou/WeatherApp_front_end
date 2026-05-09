@@ -1,3 +1,4 @@
+import type { weatherinfoFetched } from "../../type/weatherType";
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 type weatherState={
     weatherinfoArray: weatherinfoFetched[];
@@ -61,10 +62,10 @@ export const fetchAndSetInfo = createAsyncThunk<
         return rejectWithValue("Failed to fetch city info");
       }
 
-     const { longitude: lng, latitude: lat } = cityInfo.value;
+     const { longitude: lng, latitude: lat } = cityInfo.value!;
       const weatherData = await GetWeatherForecast(lat, lng);
       weatherData!.daily.location = name;
-      weatherData!.daily.country = cityInfo.value.country;
+      weatherData!.daily.country = cityInfo.value!.country;
       return { data: weatherData, setCurrentInfo, updateCookie };
     } catch (error) {
       return rejectWithValue("Unexpected error");

@@ -1,3 +1,4 @@
+import type { weatherinfoFetched } from '../type/weatherType';
 "use client"
 import { useEffect } from 'react';
 import { setWeatherState } from '../store/slice/weatherSlice';
