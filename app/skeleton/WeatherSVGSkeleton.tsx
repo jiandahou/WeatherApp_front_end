@@ -30,7 +30,7 @@ export function WeatherSVGSkeleton() {
   return (
     <div
       ref={containerRef}
-      className="backdrop-blur-md bg-white/30 rounded-xl shadow-lg overflow-hidden p-2 animate-pulse"
+      className="panel-surface rounded-xl overflow-hidden p-2 animate-pulse"
     >
       <svg width={width} height={height}>
         <path
@@ -38,7 +38,7 @@ export function WeatherSVGSkeleton() {
             .slice(1)
             .map(p => `L ${p.x + xOffset},${p.y}`)
             .join(' ')}`}
-          stroke="rgba(200,200,200,0.5)"
+          stroke="hsl(var(--ui-text-3) / 0.5)"
           strokeWidth={3}
           fill="none"
         />
@@ -50,7 +50,7 @@ export function WeatherSVGSkeleton() {
             y={p.y - 18}
             width={24}
             height={10}
-            fill="rgba(200,200,200,0.5)"
+            fill="hsl(var(--ui-text-3) / 0.5)"
             rx={4}
           />
         ))}
@@ -61,7 +61,7 @@ export function WeatherSVGSkeleton() {
             cx={p.x + xOffset}
             cy={height - 50}
             r={8}
-            fill="rgba(200,200,200,0.5)"
+            fill="hsl(var(--ui-text-3) / 0.5)"
           />
         ))}
 
@@ -72,7 +72,7 @@ export function WeatherSVGSkeleton() {
             y={height - 60}
             width={20}
             height={8}
-            fill="rgba(200,200,200,0.5)"
+            fill="hsl(var(--ui-text-3) / 0.5)"
             rx={3}
           />
         ))}
@@ -84,7 +84,7 @@ export function WeatherSVGSkeleton() {
             y={height - 10}
             width={24}
             height={8}
-            fill="rgba(200,200,200,0.5)"
+            fill="hsl(var(--ui-text-3) / 0.5)"
             rx={3}
           />
         ))}
@@ -93,7 +93,7 @@ export function WeatherSVGSkeleton() {
           y1={baselineY}
           x2={width + xOffset}
           y2={baselineY}
-          stroke="rgba(155, 75, 155, 0.8)"
+          stroke="hsl(var(--ui-accent) / 0.65)"
           strokeWidth={1}
         />
       </svg>

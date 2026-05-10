@@ -62,10 +62,10 @@ export const fetchAndSetInfo = createAsyncThunk<
         return rejectWithValue("Failed to fetch city info");
       }
 
-     const { longitude: lng, latitude: lat } = cityInfo.value!;
+     const { longitude: lng, latitude: lat } = cityInfo.value;
       const weatherData = await GetWeatherForecast(lat, lng);
       weatherData!.daily.location = name;
-      weatherData!.daily.country = cityInfo.value!.country;
+      weatherData!.daily.country = cityInfo.value.country;
       return { data: weatherData, setCurrentInfo, updateCookie };
     } catch (error) {
       return rejectWithValue("Unexpected error");
@@ -80,7 +80,7 @@ export const weatherSlice=createSlice(
                     state.weatherinfoArray=action.payload
                 },
                 pushWeatherinfoArray:(state,action: PayloadAction<weatherinfoFetched>)=>{
-                    if(state.weatherinfoArray.every((weatherinfo)=>{return weatherinfo?.daily.location==action.payload?.daily.location}))
+                    if(!state.weatherinfoArray.some((weatherinfo)=>{return weatherinfo?.daily.location===action.payload?.daily.location}))
                     state.weatherinfoArray.push(action.payload)
                 },
                 setWeatherinfo: (state,action: PayloadAction<weatherinfoFetched>)=>{
@@ -95,14 +95,11 @@ export const weatherSlice=createSlice(
                     }
                 },
                 setWeatherState:(state,action: PayloadAction<weatherinfoFetched>)=>{
-                    if(state.weatherinfoArray.every((weatherinfo)=>{return weatherinfo?.daily.location!==action.payload?.daily.location}))
-                    {
-                        state.weatherinfoArray.push(action.payload)
-                        state.weatherinfo=action.payload
-                    }
-                    else {
-                        console.log("Already have same info for that city:", action.payload?.daily.location);
-                    }
+                  if(!state.weatherinfoArray.some((weatherinfo)=>{return weatherinfo?.daily.location===action.payload?.daily.location}))
+                  {
+                    state.weatherinfoArray.push(action.payload)
+                  }
+                  state.weatherinfo=action.payload
                 }
              },
              extraReducers: (builder) => {
@@ -115,7 +112,9 @@ export const weatherSlice=createSlice(
                     console.log("Fetched weather data:", action.payload.data,new Date(Date.now()).toLocaleString());
                     state.loading = false;
                     const { data, setCurrentInfo, updateCookie } = action.payload;
-                    state.weatherinfoArray.push(data);
+                    if(state.weatherinfoArray.every((weatherinfo)=>{return weatherinfo?.daily.location!==data?.daily.location})) {
+                      state.weatherinfoArray.push(data);
+                    }
                     if (setCurrentInfo) {
                       state.weatherinfo = data;
                     }

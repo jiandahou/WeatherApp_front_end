@@ -63,12 +63,18 @@ export type weatherinfoFetched={
     daily:locationWeather,
     hourly:hourlyForecast[]}|undefined
 
-export type CityInfo = {
-    status: "success" | string;
-    value?: {
-        longitude: number;
-        latitude: number;
-        country?: string;
-        name?: string;
-    };
-}
+export type CityInfo =
+    | {
+        status: "success";
+        value: {
+            longitude: number;
+            latitude: number;
+            country?: string;
+            name?: string;
+        };
+      }
+    | {
+        status: "error";
+        message?: string;
+        value?: undefined;
+      }

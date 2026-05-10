@@ -19,14 +19,14 @@ export default function CityError({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-gray-900 text-white">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ui-bg-0 text-ui-text-1">
       <h2 className="text-2xl font-semibold">Failed to load weather data</h2>
-      <p className="text-gray-400 text-sm max-w-md text-center">
+      <p className="text-ui-text-3 text-sm max-w-md text-center">
         {error.message ?? "Could not fetch weather for this city. The service may be temporarily unavailable."}
       </p>
       <button
         onClick={reset}
-        className="mt-2 rounded-md bg-blue-600 px-5 py-2 text-sm font-medium hover:bg-blue-500 transition-colors"
+        className="mt-2 rounded-md bg-ui-accent px-5 py-2 text-sm font-medium text-ui-bg-2 hover:bg-ui-accent-muted transition-colors"
       >
         Retry
       </button>

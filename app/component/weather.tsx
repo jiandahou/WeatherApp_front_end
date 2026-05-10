@@ -1,145 +1,60 @@
 "use client"
-import { useEffect } from "react"
-import { GetTheCityInfoByLola, GetWeatherForecast } from "../action/serveractions"
 import TopBar from "../component/topBar"
 import MainWeatherPanel from "../component/mainWeatherPanel"
 import TenDayForcastingPanel from "../component/tenDayForcastingPanel"
-import Cookies from 'js-cookie';
 import Windcompass from "../component/windcompass"
 import FeelsLike from "../component/FeelsLike"
 import Pressure from "../component/Pressure"
 import Visibility from "../component/Visibility"
 import SkeletonLoader from "../skeleton/SkeletonLoader"
 import { useSelector } from 'react-redux';
-import { AppDispatch } from '../store/store';
-import { selectWeatherinfo, selectWeatherinfoArray, setWeatherState, fetchAndSetInfo } from "../store/slice/weatherSlice"
-import { useDispatch } from 'react-redux';
-import Image from "next/image";
-import LoginButton from "../component/loginButton"
+import { selectWeatherinfo } from "../store/slice/weatherSlice"
+import WeatherClientBootstrap from "./weatherClientBootstrap";
+import type { weatherinfoFetched } from "../type/weatherType";
 
-export default function Weather() {
-  function getDefaultCity(): string {
-    const lang = navigator.language.toLowerCase();
-    if (lang.startsWith('zh')) return "Beijing";
-    if (lang.startsWith('ja')) return "Tokyo";
-    if (lang.startsWith('fr')) return "Paris";
-    if (lang.startsWith('es')) return "Madrid";
-    if (lang.startsWith('de')) return "Berlin";
-    if (lang.startsWith('ko')) return "Seoul";
-    if (lang.startsWith('ru')) return "Moscow";
-    if (lang.startsWith('en')) return "Sydney";
-    return "Sydney";
-  }
-  function getCurrentPositionAsync(): Promise<GeolocationPosition> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject(new Error("Geolocation not supported"));
-      } else {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      }
-    });
-  }
-
+export default function Weather({
+  initialSummary,
+  initialWeather,
+}: {
+  initialSummary?: string | null;
+  initialWeather: NonNullable<weatherinfoFetched>;
+}) {
   const weatherinfo = useSelector(selectWeatherinfo)
-  const isLoading = !weatherinfo; 
-  const weatherinfoArray = useSelector(selectWeatherinfoArray)
-  const dispatch = useDispatch<AppDispatch>();
-
-  async function fetchUserLocationWeather() {
-    try {
-      const position = await getCurrentPositionAsync();
-      const { longitude, latitude } = position.coords;
-      const [cityInfo, weatherData] = await Promise.all([
-        GetTheCityInfoByLola(longitude, latitude),
-        GetWeatherForecast(latitude, longitude)
-      ]);
-
-      const locationName = cityInfo?.value?.name;
-      const country = cityInfo?.value?.country;
-      if (!locationName) throw new Error("No location name");
-
-      weatherData!.daily.location = locationName;
-      weatherData!.daily.country = country;
-      console.log("Fetched weather data for user location:", weatherData, new Date(Date.now()).toLocaleString());
-      dispatch(setWeatherState(weatherData));
-    } catch (err) {
-      const defaultCity = getDefaultCity();
-      await dispatch(fetchAndSetInfo({ name: defaultCity, setCurrentInfo: true }));
-    }
-  }
-
-  useEffect(() => {
-async function loadCitiesFromCookies() {
-  const cityCookie = Cookies.get("city");
-  if (!cityCookie) return;
-  try {
-    const parsed = JSON.parse(cityCookie);
-    if (!Array.isArray(parsed) || !parsed.every((c) => typeof c === "string" && c.trim() !== "")) {
-      Cookies.remove("city");
-      return;
-    }
-    const allCities = parsed as string[];
-    const citiesToFetch = allCities.filter(
-      (city) => !weatherinfoArray.find(
-        (weatherinfo) => weatherinfo?.daily.location === city
-      )
-    );
-    await Promise.all(
-      citiesToFetch.map(city =>
-        dispatch(fetchAndSetInfo({ name: city, setCurrentInfo: false }))
-      )
-    );
-
-  } catch (error) {
-    Cookies.remove("city");
-  }
-}
-    async function init() {
-      await Promise.all([
-        fetchUserLocationWeather(),
-        loadCitiesFromCookies(),
-      ]);
-    }
-    init();
-    // eslint-disable-next-line
-  }, []);
+  const activeWeather = (weatherinfo ?? initialWeather) as NonNullable<weatherinfoFetched>;
+  const isLoading = !activeWeather;
 
 
   return (
-    <div className="relative min-h-screen">
-      <Image
-        src="/MainBackground-blur.jpg"
-        alt="main-bg"
-        fill
-        style={{ objectFit: "cover", zIndex: 1, transition: "opacity 0.5s" }}
-        priority
-      />
-      <div className="relative z-10 w-4/5 mx-auto">
+      <>
+        <WeatherClientBootstrap />
         {isLoading ? (
-          <div >
+          <div>
             <SkeletonLoader />
           </div>
         ) : (
-          <>
+          <div className="space-y-4 pb-6">
             <TopBar />
-            <MainWeatherPanel />
-            <div className="bg-white-transparent">
+            <MainWeatherPanel summary={initialSummary} weatherNow={activeWeather.daily} />
+            <div className="panel-surface-strong rounded-2xl border border-ui-stroke-soft/20 px-3 py-2 sm:px-4 sm:py-3">
               <TenDayForcastingPanel
-                hourlyinfo={weatherinfo!.hourly}
+                hourlyinfo={activeWeather.hourly}
+                weatherForNextTenDay={activeWeather.daily.weatherForNextTenDay}
               />
             </div>
-            <div className="grid grid-cols-12 auto-rows-fr mt-2">
-              <Windcompass />
+            <div className="grid grid-cols-12 auto-rows-fr gap-3 sm:gap-4">
+              <Windcompass
+                windspeed={activeWeather.daily.windSpeed10m}
+                windDirection={activeWeather.daily.windDirection10m}
+              />
               <FeelsLike
-                apparent_temperature={weatherinfo!.daily.apparentTemperatureNow}
-                temperature={weatherinfo!.daily.temperatureNow}
+                apparent_temperature={activeWeather.daily.apparentTemperatureNow}
+                temperature={activeWeather.daily.temperatureNow}
               />
-              <Pressure Pressure={weatherinfo!.daily.pressureMsl} />
-              <Visibility visibility={weatherinfo!.hourly[0].visibility} />
+              <Pressure Pressure={activeWeather.daily.pressureMsl} />
+              <Visibility visibility={activeWeather.hourly[0].visibility} />
             </div>
-          </>
+          </div>
         )}
-      </div>
-    </div>
+      </>
   );
 }

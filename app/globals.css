@@ -2,10 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 .bg-white-transparent{
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: hsl(var(--ui-surface-0) / 0.7);
 }
 .min-w-600px{
     min-width: 609px;
+}
+
+@layer components {
+  .panel-surface {
+    @apply bg-ui-surface-1/70 border border-ui-stroke-soft backdrop-blur-md;
+  }
+
+  .panel-surface-strong {
+    @apply bg-ui-surface-2/85 border border-ui-stroke-strong backdrop-blur-md shadow-panelSoft;
+  }
 }
 
 @layer base {
@@ -35,6 +45,26 @@
         --chart-4: 43 74% 66%;
         --chart-5: 27 87% 67%;
         --radius: 0.5rem;
+
+        --ui-bg-0: 220 29% 10%;
+        --ui-bg-1: 220 22% 14%;
+        --ui-bg-2: 217 20% 18%;
+        --ui-surface-0: 214 36% 94%;
+        --ui-surface-1: 217 26% 20%;
+        --ui-surface-2: 217 22% 16%;
+        --ui-overlay-weak: 220 45% 5%;
+        --ui-overlay-strong: 220 55% 4%;
+        --ui-stroke-soft: 161 48% 44%;
+        --ui-stroke-strong: 161 70% 56%;
+        --ui-text-1: 210 25% 94%;
+        --ui-text-2: 212 17% 78%;
+        --ui-text-3: 212 14% 62%;
+        --ui-accent: 158 60% 54%;
+        --ui-accent-muted: 158 34% 38%;
+        --ui-state-success: 145 62% 52%;
+        --ui-state-warn: 37 92% 58%;
+        --ui-state-danger: 5 82% 58%;
+        --ui-state-info: 197 84% 58%;
     }
   .dark {
         --background: 0 0% 3.9%;
@@ -61,6 +91,26 @@
         --chart-3: 30 80% 55%;
         --chart-4: 280 65% 60%;
         --chart-5: 340 75% 55%;
+
+        --ui-bg-0: 220 27% 8%;
+        --ui-bg-1: 220 24% 12%;
+        --ui-bg-2: 218 22% 16%;
+        --ui-surface-0: 220 22% 16%;
+        --ui-surface-1: 218 21% 14%;
+        --ui-surface-2: 217 20% 11%;
+        --ui-overlay-weak: 220 62% 3%;
+        --ui-overlay-strong: 220 74% 2%;
+        --ui-stroke-soft: 161 36% 42%;
+        --ui-stroke-strong: 161 60% 56%;
+        --ui-text-1: 210 25% 94%;
+        --ui-text-2: 212 16% 78%;
+        --ui-text-3: 212 12% 60%;
+        --ui-accent: 158 60% 54%;
+        --ui-accent-muted: 158 34% 38%;
+        --ui-state-success: 145 62% 52%;
+        --ui-state-warn: 37 92% 58%;
+        --ui-state-danger: 5 82% 58%;
+        --ui-state-info: 197 84% 58%;
     }
 }
 
@@ -69,6 +119,6 @@
     @apply border-border;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-ui-bg-0 text-ui-text-1;
     }
 }

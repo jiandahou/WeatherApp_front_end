@@ -4,6 +4,35 @@ import OpenAI from "openai";
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 import type { locationWeather, weatherinfoFetched, CityInfo, weatherdailyinfo, hourlyForecast } from "../type/weatherType";
 
+function normalizeCityInfoResponse(raw: any): CityInfo {
+    if (!raw || raw.status !== "success" || !raw.value) {
+        return {
+            status: "error",
+            message: "Invalid city lookup response",
+        };
+    }
+
+    const longitude = Number(raw.value.longitude);
+    const latitude = Number(raw.value.latitude);
+
+    if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) {
+        return {
+            status: "error",
+            message: "Invalid coordinates from city lookup",
+        };
+    }
+
+    return {
+        status: "success",
+        value: {
+            longitude,
+            latitude,
+            country: raw.value.country,
+            name: raw.value.name,
+        },
+    };
+}
+
     
     export async function GetWeatherSummary(weatherInfo: locationWeather): Promise<string | null> {
         const openai = new OpenAI({
@@ -247,8 +276,6 @@ import type { locationWeather, weatherinfoFetched, CityInfo, weatherdailyinfo, h
                 })
             }
         }
-        console.log(weahterInfoTodayWithHourlyForNextTenDay)
-        console.log(hourlyForecastInfo[0])
         return{ daily:weahterInfoTodayWithHourlyForNextTenDay,
                 hourly:hourlyForecastInfo
         } as weatherinfoFetched;
@@ -275,9 +302,11 @@ import type { locationWeather, weatherinfoFetched, CityInfo, weatherdailyinfo, h
 
     export async function GetTheCityInfo(locationName: string): Promise<CityInfo> {
         const encodedName = encodeURIComponent(locationName.trim());
-        return fetchFromBackend(`/name/${encodedName}`);
+        const data = await fetchFromBackend(`/name/${encodedName}`);
+        return normalizeCityInfoResponse(data);
     }
 
     export async function GetTheCityInfoByLola(longitude: number, latitude: number): Promise<CityInfo> {
-        return fetchFromBackend(`/location/${longitude}/${latitude}`);
+        const data = await fetchFromBackend(`/location/${longitude}/${latitude}`);
+        return normalizeCityInfoResponse(data);
     }

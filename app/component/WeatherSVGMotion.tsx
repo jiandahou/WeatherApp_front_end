@@ -1,7 +1,7 @@
 'use client'
 
 import { useContext, useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 import { indexOnPageContext } from './context'
 import { type hourlyForecast } from '../type/weatherType'
 
@@ -26,6 +26,7 @@ export function WeatherSVGMotion({
 }: {
   hourlyinfo: hourlyForecast[]
 }) {
+  const shouldReduceMotion = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(800)
   const height = 300
@@ -126,9 +127,9 @@ export function WeatherSVGMotion({
           key={`fill-${animationKey}`}
           d={`${d} L ${width + xOffset} ${baselineY} L ${xOffset} ${baselineY} Z`}
           fill="url(#curveGradient)"
-          initial={{ opacity: 0 }}
+          initial={{ opacity: shouldReduceMotion ? 0.3 : 0 }}
           animate={{ opacity: 0.3 }}
-          transition={{ duration: 0.35, ease: 'easeOut' }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.35, ease: 'easeOut' }}
         />
 
         {/* Line */}
@@ -138,9 +139,9 @@ export function WeatherSVGMotion({
           stroke="url(#curveGradient)"
           strokeWidth={3}
           fill="none"
-          initial={{ pathLength: 0, opacity: 0.7 }}
+          initial={{ pathLength: shouldReduceMotion ? 1 : 0, opacity: shouldReduceMotion ? 1 : 0.7 }}
           animate={{ pathLength: 1, opacity: 1 }}
-          transition={{ duration: 0.55, ease: 'easeOut' }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: 'easeOut' }}
         />
 
         {/* Highlight vertical line at current hour */}

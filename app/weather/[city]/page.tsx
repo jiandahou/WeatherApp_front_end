@@ -1,13 +1,30 @@
 import Weather from "@/app/component/weather";
+import WeatherPageFrame from "@/app/component/weatherPageFrame";
 import ReduxProvider from "@/app/provider/reduxProvider";
 import type { Metadata } from "next";
+import {
+  GetTheCityInfo,
+  GetWeatherForecast,
+} from "@/app/action/serveractions";
+
+// Keep city weather pages cached and regenerated every hour.
+export const revalidate = 3600;
+
+function decodeCityParam(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
 
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ city: string }>;
 }): Promise<Metadata> {
-  const { city } = await params;
+  const { city: rawCity } = await params;
+  const city = decodeCityParam(rawCity);
   return {
     title: `${city} Weather – WeatherApp`,
     description: `Real-time weather forecast for ${city}: temperature, wind, precipitation, and 10-day outlook.`,
@@ -25,46 +42,67 @@ export default async function CityPage({
   params: Promise<{ city: string }>
   searchParams?: { __error?: string }
 }) {
-  const { city } = await params
+  const { city: rawCity } = await params
+  const city = decodeCityParam(rawCity)
 
   // Dev-only shortcut to preview app/weather/[city]/error.tsx quickly.
   if (process.env.NODE_ENV !== 'production' && searchParams?.__error === '1') {
     throw new Error('Debug error preview for /weather/[city]');
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL as string;
-  
-  const response = await fetch(`${baseUrl}/name/${city}`, {
-    cache: 'force-cache',
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to fetch data for city: ${city}`);
+  let latitude: number | null = null;
+  let longitude: number | null = null;
+  let country: string | undefined;
+
+  try {
+    const cityInfo = await GetTheCityInfo(city);
+    if (cityInfo.status === "success") {
+      latitude = cityInfo.value.latitude;
+      longitude = cityInfo.value.longitude;
+      country = cityInfo.value.country;
+    }
+  } catch {
+    // Fallback to open geocoding below.
   }
-  
-  const data = await response.json();
-  const { longitude, latitude, country } = data.value;
-  console.log(`${baseUrl}/api/weather/${latitude}/${longitude}`);
-  const weatherData = await fetch(`${baseUrl}/weather/${latitude}/${longitude}`, {
-    method: 'GET',
-    next: { revalidate: 3600 },
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  
-  if (!weatherData.ok) {
+
+  if (latitude === null || longitude === null) {
+    const geoRes = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`,
+      { cache: "force-cache", next: { revalidate: 3600 } }
+    );
+
+    if (!geoRes.ok) {
+      throw new Error(`Failed to load weather data: city lookup failed for ${city}`);
+    }
+
+    const geoData = await geoRes.json();
+    const hit = geoData?.results?.[0];
+    if (!hit || !Number.isFinite(hit.latitude) || !Number.isFinite(hit.longitude)) {
+      throw new Error(`Failed to load weather data: no valid coordinates for ${city}`);
+    }
+
+    latitude = Number(hit.latitude);
+    longitude = Number(hit.longitude);
+    country = hit.country_code ?? hit.country;
+  }
+
+  const weatherInfo = await GetWeatherForecast(latitude, longitude);
+  if (!weatherInfo) {
     throw new Error(`Failed to fetch weather data for city: ${city}`);
   }
-  
-  const weatherInfo = await weatherData.json();
-  weatherInfo.daily.location = city; // Ensure the location is set correctly
+
+  weatherInfo.daily.location = city;
   weatherInfo.daily.country = country;
 
+  // Do not block first paint on summary generation. Client fetches and updates it later.
+  const weatherSummary: string | null = null;
+
   return (
-    <ReduxProvider params={weatherInfo}>
-        <Weather></Weather>
-    </ReduxProvider>
+    <WeatherPageFrame>
+      <ReduxProvider params={weatherInfo}>
+          <Weather initialSummary={weatherSummary} initialWeather={weatherInfo}></Weather>
+      </ReduxProvider>
+    </WeatherPageFrame>
   );
 }
 
