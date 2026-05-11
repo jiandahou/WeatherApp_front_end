@@ -112,34 +112,35 @@ export default function MainWeatherPanel({
 
                 <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(300px,0.75fr)] lg:items-stretch">
                     <div className="grid gap-4 h-full">
-                        <div className="panel-surface-strong h-full rounded-3xl border border-ui-accent/20 p-5 shadow-panelGlow sm:p-6">
+                        <div className="panel-surface-strong h-full rounded-3xl border border-ui-accent/20 p-4 shadow-panelGlow sm:p-6">
                             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="rounded-2xl border border-ui-stroke-soft/25 bg-ui-overlay-strong/30 p-3 shadow-panelSoft">
+                                <div className="flex items-center gap-3 sm:gap-4">
+                                    <div className="rounded-2xl border border-ui-stroke-soft/25 bg-ui-overlay-strong/30 p-2 shadow-panelSoft sm:p-3">
                                         <Image
                                             src={weatherIconSrc}
                                             alt={weathername}
                                             width={88}
                                             height={88}
                                             loading="eager"
+                                            className="h-16 w-16 sm:h-[88px] sm:w-[88px]"
                                             onError={(e) => { (e.target as HTMLImageElement).src = weatherIconFallbackSrc; }}
                                         />
                                     </div>
                                     <div>
-                                        <div className="text-sm uppercase tracking-[0.35em] text-ui-text-3">Current Condition</div>
-                                        <div className="mt-2 text-3xl font-semibold sm:text-4xl">{weathername}</div>
+                                        <div className="text-xs uppercase tracking-[0.22em] text-ui-text-3 sm:text-sm sm:tracking-[0.35em]">Current Condition</div>
+                                        <div className="mt-2 text-[2.1rem] font-semibold leading-tight sm:text-4xl">{weathername}</div>
                                         <div className="mt-2 text-sm text-ui-text-2">
                                             Feels like {Math.round(weatherNow.apparentTemperatureNow)}° · High {Math.round(weatherNow.highestTemperature)}°
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="text-right">
+                                <div className="text-left sm:text-right">
                                     <div className="flex items-start justify-end gap-2 leading-none">
-                                        <div className="text-7xl font-semibold tracking-tight sm:text-8xl">{weatherNow.temperatureNow.toFixed()}</div>
-                                        <div className="pt-2 text-2xl text-ui-text-2 sm:text-3xl">°C</div>
+                                        <div className="text-6xl font-semibold tracking-tight sm:text-8xl">{weatherNow.temperatureNow.toFixed()}</div>
+                                        <div className="pt-1 text-xl text-ui-text-2 sm:pt-2 sm:text-3xl">°C</div>
                                     </div>
-                                    <div className="mt-3 text-xs uppercase tracking-[0.3em] text-ui-text-3">Live Temperature</div>
+                                    <div className="mt-3 text-[11px] uppercase tracking-[0.22em] text-ui-text-3 sm:text-xs sm:tracking-[0.3em]">Live Temperature</div>
                                 </div>
                             </div>
                         </div>
@@ -213,12 +214,6 @@ export default function MainWeatherPanel({
                     </aside>
                 </div>
 
-                <div className="mt-5 rounded-3xl border border-ui-stroke-soft/15 bg-ui-overlay-weak/20 px-5 py-4 text-sm text-ui-text-2">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                        <span>Live summary is updated by the client after hydration.</span>
-                        <span className="text-ui-text-3">Split layout + status rail + metric strip</span>
-                    </div>
-                </div>
             </div>
         </section>
     );

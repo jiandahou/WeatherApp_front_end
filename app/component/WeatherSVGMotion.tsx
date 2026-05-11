@@ -60,7 +60,9 @@ export function WeatherSVGMotion({
     return new Date(timeValue)
   }
 
-  const slice = hourlyinfo.slice(indexOnpage * 24, (indexOnpage + 1) * 24)
+  const nowHour = now.getHours();
+  const startIndex = indexOnpage === 0 ? nowHour : 0; // First day starts from current hour, others from 0:00
+  const slice = hourlyinfo.slice(indexOnpage * 24 + startIndex, (indexOnpage + 1) * 24 + startIndex)
   if (slice.length < 2) return null
 
   const temps = slice.map((h) => h.temperature2m)
@@ -107,7 +109,7 @@ export function WeatherSVGMotion({
   return (
     <div
       ref={containerRef}
-      className="backdrop-blur-md bg-white/30 rounded-xl shadow-lg overflow-hidden p-2"
+      className="backdrop-blur-md bg-gray-800/50 rounded-xl shadow-lg overflow-hidden p-2"
     >
       <svg width={width} height={height}>
         <defs>
@@ -163,10 +165,10 @@ export function WeatherSVGMotion({
             <g key={i}>
               <text
                 x={p.x + xOffset}
-                y={p.y - 10}
+                y={p.y - (p.y > height - 70 ? 50 : 40)} // Move the highest temperature text higher
                 fontSize={12}
                 textAnchor="middle"
-                fill="#1e293b"
+                fill="#ffffff" // Change color to white
               >
                 {p.temp.toFixed(1)}°
               </text>
@@ -191,7 +193,7 @@ export function WeatherSVGMotion({
                 y={height - 10}
                 fontSize={11}
                 textAnchor="middle"
-                fill="#4b5563"
+                fill="#ffffff" // Changed to white
               >
                 {isNow(p.time) ? 'Now' : `${p.hour}:00`}
               </text>
@@ -212,9 +214,9 @@ export function WeatherSVGMotion({
         )}
 
         <line
-          x1={0}
+          x1={xOffset} // Ensure alignment with the curve's starting point
           y1={baselineY}
-          x2={width + xOffset}
+          x2={points[points.length - 1].x + xOffset} // Align with the curve's end point
           y2={baselineY}
           stroke="rgba(155, 75, 155, 0.8)"
           strokeWidth={1}
