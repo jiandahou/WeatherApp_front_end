@@ -6,6 +6,10 @@ import Windcompass from "../component/windcompass"
 import FeelsLike from "../component/FeelsLike"
 import Pressure from "../component/Pressure"
 import Visibility from "../component/Visibility"
+import HumidityCard from "../component/HumidityCard"
+import DewPointCard from "../component/DewPointCard"
+import RainWindowCard from "../component/RainWindowCard"
+import SunshineRatioCard from "../component/SunshineRatioCard"
 import SkeletonLoader from "../skeleton/SkeletonLoader"
 import { useSelector } from 'react-redux';
 import { selectWeatherinfo } from "../store/slice/weatherSlice"
@@ -52,6 +56,20 @@ export default function Weather({
               />
               <Pressure Pressure={activeWeather.daily.pressureMsl} />
               <Visibility visibility={activeWeather.hourly[0].visibility} />
+              <HumidityCard humidity={activeWeather.hourly[0].relativeHumidity2m} />
+              <DewPointCard
+                dewPoint={activeWeather.hourly[0].dewPoint2m}
+                temperature={activeWeather.daily.temperatureNow}
+              />
+              <RainWindowCard
+                precipitationHours={activeWeather.daily.precipitationHours}
+                precipitationSum={activeWeather.daily.precipitationSum}
+                precipitationProbabilityMax={activeWeather.daily.recipitationProbabilityMax}
+              />
+              <SunshineRatioCard
+                sunshineDuration={activeWeather.daily.sunshineDuration}
+                daylightDuration={activeWeather.daily.daylightDuration}
+              />
             </div>
           </div>
         )}

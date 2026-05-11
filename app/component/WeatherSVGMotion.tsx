@@ -32,6 +32,7 @@ export function WeatherSVGMotion({
   const height = 300
   const padding = 60
   const xOffset = 20
+  const xRightOffset = width < 640 ? 34 : 24
   const baselineY = height - 30
   const indexOnpage = useContext(indexOnPageContext)
 
@@ -61,15 +62,17 @@ export function WeatherSVGMotion({
   }
 
   const nowHour = now.getHours();
-  const startIndex = indexOnpage === 0 ? nowHour : 0; // First day starts from current hour, others from 0:00
-  const slice = hourlyinfo.slice(indexOnpage * 24 + startIndex, (indexOnpage + 1) * 24 + startIndex)
+  const startIndex = indexOnpage === 0 ? nowHour : 0 // First day starts from current hour, others from 0:00
+  const absoluteStart = indexOnpage * 24 + startIndex
+  const slice = hourlyinfo.slice(absoluteStart, absoluteStart + 25)
   if (slice.length < 2) return null
 
   const temps = slice.map((h) => h.temperature2m)
   const minT = Math.min(...temps)
   const maxT = Math.max(...temps)
   const range = maxT - minT || 1
-  const stepX = width / (slice.length - 1)
+  const plotWidth = Math.max(1, width - xOffset - xRightOffset)
+  const stepX = plotWidth / (slice.length - 1)
   const usableHeight = height - padding * 2
 
   const points = slice.map((h, i) => {
@@ -91,6 +94,14 @@ export function WeatherSVGMotion({
     ? firstPointTime.toISOString()
     : new Date(firstPointTime).toISOString();
   const animationKey = `${indexOnpage}-${firstPointIso}`;
+  const isCompact = width < 640
+  const isVeryCompact = width < 460
+  const labelStep = isVeryCompact ? 4 : isCompact ? 3 : 2
+  const tempLabelLift = isVeryCompact ? 32 : 40
+  const tempFontSize = isVeryCompact ? 10 : 12
+  const rainFontSize = isVeryCompact ? 9 : 10
+  const timeFontSize = isVeryCompact ? 10 : 11
+  const rainIconSize = isVeryCompact ? 13 : 16
 
   const d = (() => {
     let path = `M ${points[0].x + xOffset},${points[0].y} `
@@ -105,6 +116,12 @@ export function WeatherSVGMotion({
 
   // 修复：使用安全的时间比较
   const nowIndex = points.findIndex(p => isNow(p.time))
+  const formatHourLabel = (p: { hour: number; time: Date }, i: number) => {
+    if (isNow(p.time)) return 'Now'
+    const isLastPoint = i === points.length - 1
+    if (isLastPoint && points.length > 24 && p.hour === 0) return '24:00'
+    return `${p.hour}:00`
+  }
 
   return (
     <div
@@ -117,7 +134,7 @@ export function WeatherSVGMotion({
             {points.map((p, i) => (
               <stop
                 key={i}
-                offset={`${(p.x / width) * 100}%`}
+                offset={`${(p.x / plotWidth) * 100}%`}
                 stopColor={TempertureToColor(p.temp)}
               />
             ))}
@@ -127,7 +144,7 @@ export function WeatherSVGMotion({
         {/* Fill */}
         <motion.path
           key={`fill-${animationKey}`}
-          d={`${d} L ${width + xOffset} ${baselineY} L ${xOffset} ${baselineY} Z`}
+          d={`${d} L ${plotWidth + xOffset} ${baselineY} L ${xOffset} ${baselineY} Z`}
           fill="url(#curveGradient)"
           initial={{ opacity: shouldReduceMotion ? 0.3 : 0 }}
           animate={{ opacity: 0.3 }}
@@ -160,42 +177,48 @@ export function WeatherSVGMotion({
         )}
 
         {/* Data points */}
-        {points.map((p, i) =>
-          i % 2 === 0 ? (
+        {points.map((p, i) => {
+          const shouldShow = i % labelStep === 0 || i === points.length - 1 || isNow(p.time)
+          if (!shouldShow) return null
+          const pointX = p.x + xOffset
+          const edgePadding = isVeryCompact ? 16 : 20
+          const labelX = Math.min(width - edgePadding, Math.max(edgePadding, pointX))
+
+          return (
             <g key={i}>
               <text
-                x={p.x + xOffset}
-                y={p.y - (p.y > height - 70 ? 50 : 40)} // Move the highest temperature text higher
-                fontSize={12}
+                x={labelX}
+                y={Math.max(18, p.y - tempLabelLift)}
+                fontSize={tempFontSize}
                 textAnchor="middle"
-                fill="#ffffff" // Change color to white
+                fill="#ffffff"
               >
                 {p.temp.toFixed(1)}°
               </text>
               <image
-                x={p.x + xOffset - 8}
+                x={labelX - rainIconSize / 2}
                 y={height - 50}
-                width={16}
-                height={16}
+                width={rainIconSize}
+                height={rainIconSize}
                 href="/RaininPanel.svg"
               />
               <text
-                x={p.x + xOffset}
+                x={labelX}
                 y={height - 60}
-                fontSize={10}
+                fontSize={rainFontSize}
                 textAnchor="middle"
                 fill="#3b82f6"
               >
                 {p.rain}%
               </text>
               <text
-                x={p.x + xOffset + 2}
+                x={labelX + 2}
                 y={height - 10}
-                fontSize={11}
+                fontSize={timeFontSize}
                 textAnchor="middle"
-                fill="#ffffff" // Changed to white
+                fill="#ffffff"
               >
-                {isNow(p.time) ? 'Now' : `${p.hour}:00`}
+                {formatHourLabel(p, i)}
               </text>
               {/* Animated rain drop if rain > 60% */}
               {p.rain >= 60 && (
@@ -210,8 +233,8 @@ export function WeatherSVGMotion({
                 />
               )}
             </g>
-          ) : null
-        )}
+          )
+        })}
 
         <line
           x1={xOffset} // Ensure alignment with the curve's starting point

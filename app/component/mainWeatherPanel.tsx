@@ -63,6 +63,12 @@ export default function MainWeatherPanel({
     const cityCountryLabel = weatherNow.country ? weatherNow.country : "Unknown";
     const summaryText = liveSummary ?? `Today Weather is ${weathername}. The highest temperature is ${Math.round(weatherNow.highestTemperature)}°C.`;
     const shouldClampSummary = !isSummaryExpanded;
+    const sunshineHours = weatherNow.sunshineDuration / 3600;
+    const daylightHours = weatherNow.daylightDuration / 3600;
+    const sunshineRatio = daylightHours > 0 ? Math.max(0, Math.min(1, sunshineHours / daylightHours)) : 0;
+    const windLevel = Math.max(0, Math.min(1, weatherNow.windSpeed10m / 60));
+    const rainLevel = Math.max(0, Math.min(1, weatherNow.rainsum / 20));
+    const daylightLevel = Math.max(0, Math.min(1, daylightHours / 24));
 
     useEffect(() => {
         setIsSummaryExpanded(false);
@@ -146,21 +152,49 @@ export default function MainWeatherPanel({
                         </div>
 
                         <div className="grid items-stretch gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                            <div className="panel-surface flex h-full min-h-[130px] flex-col items-center justify-center rounded-2xl border border-ui-stroke-soft/15 p-4 text-center text-ui-text-1">
+                            <div className="panel-surface flex h-full min-h-[130px] flex-col rounded-2xl border border-ui-stroke-soft/15 p-4 text-ui-text-1">
                                 <div className="text-xs uppercase tracking-[0.28em] text-ui-text-3">Sunshine</div>
-                                <div className="mt-2 text-2xl font-semibold">{(weatherNow.sunshineDuration / 3600).toFixed(1)}h</div>
+                                <div className="mt-2 text-2xl font-semibold">{sunshineHours.toFixed(1)}h</div>
+                                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ui-overlay-strong/55">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-amber-300 via-yellow-300 to-lime-300 transition-[width] duration-700 ease-out"
+                                        style={{ width: `${(sunshineRatio * 100).toFixed(1)}%` }}
+                                    />
+                                </div>
+                                <div className="mt-2 text-xs text-ui-text-3">{Math.round(sunshineRatio * 100)}% of daylight</div>
                             </div>
-                            <div className="panel-surface flex h-full min-h-[130px] flex-col items-center justify-center rounded-2xl border border-ui-stroke-soft/15 p-4 text-center text-ui-text-1">
+                            <div className="panel-surface flex h-full min-h-[130px] flex-col rounded-2xl border border-ui-stroke-soft/15 p-4 text-ui-text-1">
                                 <div className="text-xs uppercase tracking-[0.28em] text-ui-text-3">Wind</div>
-                                <div className="mt-2 text-2xl font-semibold">{weatherNow.windSpeed10m.toFixed()} kmh</div>
+                                <div className="mt-2 text-2xl font-semibold">{weatherNow.windSpeed10m.toFixed()} km/h</div>
+                                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ui-overlay-strong/55">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-indigo-400 transition-[width] duration-700 ease-out"
+                                        style={{ width: `${(windLevel * 100).toFixed(1)}%` }}
+                                    />
+                                </div>
+                                <div className="mt-2 text-xs text-ui-text-3">scaled to 60 km/h</div>
                             </div>
-                            <div className="panel-surface flex h-full min-h-[130px] flex-col items-center justify-center rounded-2xl border border-ui-stroke-soft/15 p-4 text-center text-ui-text-1">
+                            <div className="panel-surface flex h-full min-h-[130px] flex-col rounded-2xl border border-ui-stroke-soft/15 p-4 text-ui-text-1">
                                 <div className="text-xs uppercase tracking-[0.28em] text-ui-text-3">Rain</div>
-                                <div className="mt-2 text-2xl font-semibold">{weatherNow.rainsum.toFixed(2)}</div>
+                                <div className="mt-2 text-2xl font-semibold">{weatherNow.rainsum.toFixed(1)} mm</div>
+                                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ui-overlay-strong/55">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-sky-400 via-cyan-400 to-blue-500 transition-[width] duration-700 ease-out"
+                                        style={{ width: `${(rainLevel * 100).toFixed(1)}%` }}
+                                    />
+                                </div>
+                                <div className="mt-2 text-xs text-ui-text-3">scaled to 20 mm</div>
                             </div>
-                            <div className="panel-surface flex h-full min-h-[130px] flex-col items-center justify-center rounded-2xl border border-ui-stroke-soft/15 p-4 text-center text-ui-text-1">
+                            <div className="panel-surface flex h-full min-h-[130px] flex-col rounded-2xl border border-ui-stroke-soft/15 p-4 text-ui-text-1">
                                 <div className="text-xs uppercase tracking-[0.28em] text-ui-text-3">Daylight</div>
-                                <div className="mt-2 text-2xl font-semibold">{(weatherNow.daylightDuration / 3600).toFixed(0)}h</div>
+                                <div className="mt-2 text-2xl font-semibold">{daylightHours.toFixed(1)}h</div>
+                                <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ui-overlay-strong/55">
+                                    <div
+                                        className="h-full rounded-full bg-gradient-to-r from-violet-300 via-indigo-300 to-sky-300 transition-[width] duration-700 ease-out"
+                                        style={{ width: `${(daylightLevel * 100).toFixed(1)}%` }}
+                                    />
+                                </div>
+                                <div className="mt-2 text-xs text-ui-text-3">{Math.round(daylightLevel * 100)}% of full-day cycle</div>
                             </div>
                         </div>
                     </div>
@@ -204,13 +238,10 @@ export default function MainWeatherPanel({
                             </div>
                             <div className="rounded-2xl border border-ui-stroke-soft/15 bg-ui-overlay-weak/20 p-4">
                                 <div className="text-xs uppercase tracking-[0.25em] text-ui-text-3">Snowfall</div>
-                                <div className="mt-2 text-2xl font-semibold">{weatherNow.snowfall.toFixed(3)}%</div>
-                            </div>
-                            <div className="rounded-2xl border border-ui-stroke-soft/15 bg-ui-overlay-weak/20 p-4">
-                                <div className="text-xs uppercase tracking-[0.25em] text-ui-text-3">Weather Code</div>
-                                <div className="mt-2 text-2xl font-semibold">{weatherNow.weatherCode}</div>
+                                <div className="mt-2 text-2xl font-semibold">{weatherNow.snowfall.toFixed(2)} mm</div>
                             </div>
                         </div>
+                        <div className="mt-3 text-xs text-ui-text-3">Weather code {weatherNow.weatherCode}</div>
                     </aside>
                 </div>
 

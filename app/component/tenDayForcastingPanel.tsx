@@ -38,7 +38,7 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
     const dayLabel = `${monthIntepretor[dateObj.getMonth()]} ${dateObj.getDate().toString()} ${dateObj.toLocaleDateString('en-US', { weekday: 'long' })}`;
     
     return(
-        <motion.div layout transition={{ type: "spring", stiffness: 220, damping: 24 }} className={clsx("shrink-0 grow-0",{"basis-40 sm:basis-44":isActive==false,"basis-72 sm:basis-80":isActive==true})}>
+        <motion.div layout transition={{ type: "spring", stiffness: 220, damping: 24 }} className={clsx("shrink-0 grow-0",{"basis-40 sm:basis-44":isActive==false,"basis-64 sm:basis-80":isActive==true})}>
             <motion.button
                 layout
                 type="button"
@@ -147,7 +147,8 @@ export function ButtonPanleForTenDay({
             updateArrowState()
             const buttons = getButtons()
             if (buttons[activeOnpage]) {
-                buttons[activeOnpage].scrollIntoView({ inline: "nearest", block: "nearest" })
+                const isMobile = window.innerWidth < 640
+                buttons[activeOnpage].scrollIntoView({ inline: isMobile ? "center" : "nearest", block: "nearest" })
             }
         })
 
@@ -174,7 +175,14 @@ export function ButtonPanleForTenDay({
     useEffect(() => {
         const buttons = getButtons()
         if (!buttons[activeOnpage]) return
-        buttons[activeOnpage].scrollIntoView({ inline: "nearest", block: "nearest", behavior: "smooth" })
+        // Use "center" for small screens to ensure expanded card is fully visible
+        // Use "nearest" for large screens to avoid unnecessary scrolling
+        const isMobile = window.innerWidth < 640
+        buttons[activeOnpage].scrollIntoView({ 
+            inline: isMobile ? "center" : "nearest", 
+            block: "nearest", 
+            behavior: "smooth" 
+        })
         updateArrowState()
     }, [activeOnpage, getButtons, updateArrowState])
 
