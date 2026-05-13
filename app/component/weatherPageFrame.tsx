@@ -14,7 +14,7 @@ export default function WeatherPageFrame({
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.10),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.12),transparent_28%)]" />
       <div className="absolute inset-0 opacity-[0.12] bg-[linear-gradient(to_right,hsl(var(--ui-text-1)/0.18)_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--ui-text-1)/0.18)_1px,transparent_1px)] bg-[size:72px_72px]" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-ui-accent/70 to-transparent" />
-      <div className="relative z-10 mx-auto w-4/5 py-4 sm:py-6">{children}</div>
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-3 py-4 sm:px-5 sm:py-6">{children}</div>
     </div>
   );
 }

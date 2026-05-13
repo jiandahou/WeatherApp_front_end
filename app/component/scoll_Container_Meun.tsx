@@ -51,17 +51,19 @@ export default function ScollContainerMeun(){
             buttons[targetIndex].scrollIntoView({ inline: "start", block: "nearest",behavior: "smooth" });
           }
     return(
-      <div className="flex items-center sm:ml-2 sm:flex-1 sm:min-w-0">
+      <div className="flex w-full items-center sm:ml-2 sm:flex-1 sm:min-w-0">
             <motion.button
                 whileHover={{scale:1.1}}
                 whileTap={{scale:0.8}}
                 aria-label="Scroll left"
                 onClick={turnLeft}
-          className="w-8 h-8 sm:w-10 sm:h-10 mx-2 flex-none flex items-center justify-center panel-surface-strong rounded-full transition-colors duration-200 ease-in-out text-white hover:shadow-panelGlow text-lg font-bold"
+          className="mx-1 flex h-7 w-7 flex-none items-center justify-center rounded-full panel-surface-strong text-ui-text-1 transition-colors duration-200 ease-in-out hover:shadow-panelGlow sm:mx-2 sm:h-10 sm:w-10"
             >
-                ◀
+                <svg viewBox="0 0 20 20" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <path d="M12.5 4.5L7 10L12.5 15.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
             </motion.button>
-            <div className="pl-1 sm:pl-2 flex-1 min-w-0">
+            <div className="pl-0.5 sm:pl-2 flex-1 min-w-0">
               <LocationNavButtonPanel  ref={panelref} />
             </div>
             <motion.button
@@ -69,9 +71,11 @@ export default function ScollContainerMeun(){
                 whileTap={{scale:0.8}}
                 aria-label="Scroll right"
                 onClick={turnRight}
-          className="w-8 h-8 sm:w-10 sm:h-10 mx-2 flex-none flex items-center justify-center panel-surface-strong rounded-full transition-colors duration-200 ease-in-out text-white hover:shadow-panelGlow text-lg font-bold"
+          className="mx-1 flex h-7 w-7 flex-none items-center justify-center rounded-full panel-surface-strong text-ui-text-1 transition-colors duration-200 ease-in-out hover:shadow-panelGlow sm:mx-2 sm:h-10 sm:w-10"
             >
-                ▶
+                <svg viewBox="0 0 20 20" className="h-4 w-4 sm:h-5 sm:w-5" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+                  <path d="M7.5 4.5L13 10L7.5 15.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
             </motion.button>
         </div>
     )

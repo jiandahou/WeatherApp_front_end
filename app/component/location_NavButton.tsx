@@ -33,11 +33,11 @@ export default function LocationNavButton({weather}:{
         whileTap={shouldReduceMotion?undefined:{scale:0.98}}
         layout
         aria-label={`Switch weather focus to ${cityName ?? weathername}`}
-        className="ml-1 my-1 mr-4 flex flex-none snap-start flex-row items-center rounded-lg bg-ui-surface-1/70 border border-ui-stroke-soft/50 backdrop-blur-sm px-3 py-2 shadow-panelSoft transition-all duration-150 ease-in-out hover:bg-ui-surface-2/80 hover:shadow-panelGlow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-accent/70"
+        className="my-1 ml-1 mr-2 flex flex-none snap-start flex-row items-center rounded-lg border border-ui-stroke-soft/50 bg-ui-surface-1/70 px-2 py-1.5 text-sm backdrop-blur-sm shadow-panelSoft transition-all duration-150 ease-in-out hover:bg-ui-surface-2/80 hover:shadow-panelGlow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-accent/70 sm:mr-4 sm:px-3 sm:py-2 sm:text-base"
         onClick={(e)=>{navButtonOnclick()}}>
-            <p className="flex-1 font-medium text-ui-text-1" >{weather.location!=undefined?weather.location:weathername}</p>
-            <Image title={weathername} src={weatherIconSrc} alt="weather" width={32} height={32} onError={(e)=>(e.currentTarget.src=weatherIconFallbackSrc)} className="mx-1 w-8 h-8" />
-            <div className="text-base font-semibold text-ui-text-1" >{Math.round(weather.temperatureNow)+"°"}</div>
+            <p className="flex-1 max-w-[7.5rem] truncate font-medium text-ui-text-1 sm:max-w-none" >{weather.location!=undefined?weather.location:weathername}</p>
+            <Image title={weathername} src={weatherIconSrc} alt="weather" width={32} height={32} onError={(e)=>(e.currentTarget.src=weatherIconFallbackSrc)} className="mx-1 h-7 w-7 sm:h-8 sm:w-8" />
+            <div className="font-semibold text-ui-text-1" >{Math.round(weather.temperatureNow)+"°"}</div>
         </motion.button>
         )
     } 

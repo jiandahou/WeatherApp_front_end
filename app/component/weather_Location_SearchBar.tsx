@@ -162,7 +162,7 @@ export default function WeatherLocationSearchBar(){
     }, [input]);
     
     return(
-        <div className='sm:w-64 search-container shrink-0 space-y-4 z-[999] relative mt-1 sm:mt-2'>
+        <div className='search-container relative z-[999] mt-0 w-full shrink-0 space-y-2 sm:mt-2 sm:w-72 sm:space-y-4'>
             <div className="flex flex-row rounded-lg border-gray-400 relative backdrop-blur-md bg-white/50 items-center">
                 <motion.input
                   id="weather-city-search"
@@ -175,7 +175,7 @@ export default function WeatherLocationSearchBar(){
                   aria-expanded={openSearchbox}
                   aria-controls={listboxId}
                   aria-autocomplete="list"
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-400 text-gray-900 placeholder:text-gray-500 bg-white"
+                                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 sm:py-2"
                   whileFocus={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 />

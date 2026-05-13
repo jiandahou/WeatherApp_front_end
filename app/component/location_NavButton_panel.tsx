@@ -14,8 +14,8 @@ type Props={
         () => weatherinfoArray.map((w) => w!.daily),
         [weatherinfoArray]
       )
-    return(<div className="relative flex-1 min-w-0 overflow-x-hidden">
-            <motion.div className="flex flex-row relative " ref={ref} >
+    return(<div className="relative flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <motion.div className="relative flex flex-row" ref={ref} >
             {LocationInfoList.map(locationInfo=>
                 <LocationNavButton weather={locationInfo!} key={locationInfo!.location}></LocationNavButton>
             )}
