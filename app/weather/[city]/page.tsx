@@ -2,10 +2,9 @@ import Weather from "@/app/component/weather";
 import WeatherPageFrame from "@/app/component/weatherPageFrame";
 import ReduxProvider from "@/app/provider/reduxProvider";
 import type { Metadata } from "next";
-import {
-  GetTheCityInfo,
-  GetWeatherForecast,
-} from "@/app/action/serveractions";
+import { getKnownCity, knownCities } from "@/app/data/knownCities";
+import { getCityInfo } from "@/lib/cities";
+import { getWeatherForecast } from "@/lib/weather";
 
 // Keep city weather pages cached and regenerated every hour.
 export const revalidate = 3600;
@@ -53,16 +52,23 @@ export default async function CityPage({
   let latitude: number | null = null;
   let longitude: number | null = null;
   let country: string | undefined;
+  const knownCity = getKnownCity(city);
 
-  try {
-    const cityInfo = await GetTheCityInfo(city);
-    if (cityInfo.status === "success") {
-      latitude = cityInfo.value.latitude;
-      longitude = cityInfo.value.longitude;
-      country = cityInfo.value.country;
+  if (knownCity) {
+    latitude = knownCity.latitude;
+    longitude = knownCity.longitude;
+    country = knownCity.country;
+  } else {
+    try {
+      const cityInfo = await getCityInfo(city);
+      if (cityInfo.status === "success") {
+        latitude = cityInfo.value.latitude;
+        longitude = cityInfo.value.longitude;
+        country = cityInfo.value.country;
+      }
+    } catch {
+      // Fallback to open geocoding below.
     }
-  } catch {
-    // Fallback to open geocoding below.
   }
 
   if (latitude === null || longitude === null) {
@@ -86,7 +92,7 @@ export default async function CityPage({
     country = hit.country_code ?? hit.country;
   }
 
-  const weatherInfo = await GetWeatherForecast(latitude, longitude);
+  const weatherInfo = await getWeatherForecast(latitude, longitude);
   if (!weatherInfo) {
     throw new Error(`Failed to fetch weather data for city: ${city}`);
   }
@@ -107,14 +113,5 @@ export default async function CityPage({
 }
 
 export function generateStaticParams() {
-  return [
-    { city: "Beijing" },
-    { city: "Tokyo" },
-    { city: "Paris" },
-    { city: "Madrid" },
-    { city: "Berlin" },
-    { city: "Seoul" },
-    { city: "Moscow" },
-    { city: "Sydney" },
-  ];
+  return knownCities.map(({ name }) => ({ city: name }));
 }

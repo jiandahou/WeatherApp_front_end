@@ -4,9 +4,20 @@ import type { locationWeather } from '../type/weatherType';
 import { useEffect, useRef, useState } from "react";
 import { WeatherCodeInterpretator } from "../weatherCode/weatherCodeInterpretation";
 import { getWeatherBackgroundPresetList, resolveWeatherBackgroundByCode, resolveWeatherIconFallbackSrc, resolveWeatherIconSrcByCode } from "../weatherCode/weatherVisualTokens";
-import { useClock } from "../hooks/useClock";
 import Image from 'next/image';
 import useSWR from "swr";
+
+function formatUpdateAge(date: Date): string {
+    const diffMs = Date.now() - date.getTime();
+    if (!Number.isFinite(diffMs)) return "Unknown";
+    const absMinutes = Math.max(0, Math.round(diffMs / 60000));
+    if (absMinutes < 1) return "Just now";
+    if (absMinutes < 60) return `${absMinutes} min ago`;
+    const hours = Math.round(absMinutes / 60);
+    if (hours < 24) return `${hours} hr ago`;
+    const days = Math.round(hours / 24);
+    return `${days} day${days === 1 ? "" : "s"} ago`;
+}
 
 export default function MainWeatherPanel({
     summary,
@@ -15,7 +26,7 @@ export default function MainWeatherPanel({
     summary?: string | null;
     weatherNow: locationWeather;
 }) {
-    const timeString = useClock();
+    const [clockDate, setClockDate] = useState(() => new Date());
     const weathername = WeatherCodeInterpretator[weatherNow.weatherCode];
     const weatherIconSrc = resolveWeatherIconSrcByCode(weatherNow.weatherCode);
     const weatherIconFallbackSrc = resolveWeatherIconFallbackSrc();
@@ -60,7 +71,32 @@ export default function MainWeatherPanel({
         });
     }, []);
 
+    useEffect(() => {
+        const id = window.setInterval(() => setClockDate(new Date()), 1000);
+        return () => window.clearInterval(id);
+    }, []);
+
     const cityCountryLabel = weatherNow.country ? weatherNow.country : "Unknown";
+    const lastUpdatedDate = new Date(weatherNow.time);
+    const timezoneLabel = weatherNow.timezoneAbbreviation && weatherNow.timezone
+        ? `${weatherNow.timezoneAbbreviation} / ${weatherNow.timezone}`
+        : weatherNow.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const lastUpdatedLabel = Number.isNaN(lastUpdatedDate.getTime())
+        ? "Unknown"
+        : lastUpdatedDate.toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            timeZone: weatherNow.timezone,
+        });
+    const lastUpdatedAge = Number.isNaN(lastUpdatedDate.getTime()) ? "Unknown" : formatUpdateAge(lastUpdatedDate);
+    const forecastLocalTime = clockDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: weatherNow.timezone,
+    });
     const summaryText = liveSummary ?? `Today Weather is ${weathername}. The highest temperature is ${Math.round(weatherNow.highestTemperature)}°C.`;
     const shouldClampSummary = !isSummaryExpanded;
     const sunshineHours = weatherNow.sunshineDuration / 3600;
@@ -106,13 +142,19 @@ export default function MainWeatherPanel({
             <div className="relative px-4 py-5 sm:px-6 sm:py-6">
                 <div className="flex flex-wrap items-center gap-3">
                     <div role="status" aria-live="polite" className="panel-surface rounded-full border border-ui-accent/20 px-4 py-2 text-sm text-ui-text-2 shadow-panelSoft">
-                        Weather Now · {timeString}
+                        Weather Now
                     </div>
                     <div className="panel-surface rounded-full border border-ui-stroke-soft/20 px-4 py-2 text-sm text-ui-text-2">
                         {weatherNow.location}
                     </div>
                     <div className="panel-surface rounded-full border border-ui-stroke-soft/20 px-4 py-2 text-sm text-ui-text-2">
                         {cityCountryLabel}
+                    </div>
+                    <div className="panel-surface rounded-full border border-ui-stroke-soft/20 px-4 py-2 text-sm text-ui-text-2">
+                        Updated {lastUpdatedAge} / {lastUpdatedLabel}
+                    </div>
+                    <div className="panel-surface rounded-full border border-ui-stroke-soft/20 px-4 py-2 text-sm text-ui-text-2">
+                        Local time {forecastLocalTime} / {timezoneLabel}
                     </div>
                 </div>
 

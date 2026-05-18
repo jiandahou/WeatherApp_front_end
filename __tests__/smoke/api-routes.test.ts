@@ -8,9 +8,12 @@
 import { describe, it, expect, vi } from 'vitest';
 
 // ── Shared mocks ─────────────────────────────────────────────────────────────
-vi.mock('@/app/action/serveractions', () => ({
-  GetWeatherForecast: vi.fn().mockResolvedValue({ daily: { temperature_2m_max: [22] } }),
-  GetWeatherSummary: vi.fn().mockResolvedValue('Clear skies today.'),
+vi.mock('@/lib/weather', () => ({
+  getWeatherForecast: vi.fn().mockResolvedValue({ daily: { temperature_2m_max: [22] } }),
+}));
+
+vi.mock('@/lib/weatherSummary', () => ({
+  getWeatherSummary: vi.fn().mockResolvedValue('Clear skies today.'),
 }));
 
 vi.mock('next/server', () => ({
@@ -31,9 +34,7 @@ describe('API Route /api/weather – smoke', () => {
 
   it('GET returns 400 when body is missing coordinates', async () => {
     const { GET } = await import('@/app/api/weather/route');
-    const fakeReq = {
-      json: vi.fn().mockResolvedValue({}),
-    } as unknown as Request;
+    const fakeReq = new Request('https://example.test/api/weather');
 
     const res = await GET(fakeReq);
     expect(res.status).toBe(400);

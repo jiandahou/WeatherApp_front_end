@@ -17,7 +17,7 @@ type Props={
     return(<div className="relative flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <motion.div className="relative flex flex-row" ref={ref} >
             {LocationInfoList.map(locationInfo=>
-                <LocationNavButton weather={locationInfo!} key={locationInfo!.location}></LocationNavButton>
+                <LocationNavButton weather={locationInfo!} key={`${locationInfo!.location}-${locationInfo!.country ?? 'unknown'}`}></LocationNavButton>
             )}
             </motion.div>
         </div>)

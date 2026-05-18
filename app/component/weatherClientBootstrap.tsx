@@ -4,13 +4,22 @@ import { useEffect } from "react";
 import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
-import { GetTheCityInfoByLola, GetWeatherForecast } from "../action/serveractions";
+import { GetTheCityInfoByLola } from "../action/serveractions";
+import { getKnownCity } from "../data/knownCities";
+import { fetchWeatherByCoordinates } from "../utils/weatherApiClient";
 import { AppDispatch } from "../store/store";
 import {
   fetchAndSetInfo,
   selectWeatherinfoArray,
   setWeatherState,
 } from "../store/slice/weatherSlice";
+
+type SavedCityCookie = string | {
+  name: string;
+  country?: string;
+  latitude?: number;
+  longitude?: number;
+};
 
 function getDefaultCity(): string {
   const lang = navigator.language.toLowerCase();
@@ -35,6 +44,32 @@ function getCurrentPositionAsync(): Promise<GeolocationPosition> {
   });
 }
 
+function getCityFromWeatherPath(pathname: string | null): string | null {
+  const match = pathname?.match(/^\/weather\/([^/]+)/i);
+  if (!match?.[1]) return null;
+
+  try {
+    return decodeURIComponent(match[1]);
+  } catch {
+    return match[1];
+  }
+}
+
+function normalizeSavedCityCookie(value: unknown): SavedCityCookie | null {
+  if (typeof value === "string" && value.trim() !== "") return value;
+  if (!value || typeof value !== "object") return null;
+
+  const candidate = value as Partial<Extract<SavedCityCookie, object>>;
+  if (typeof candidate.name !== "string" || candidate.name.trim() === "") return null;
+
+  return {
+    name: candidate.name,
+    country: typeof candidate.country === "string" ? candidate.country : undefined,
+    latitude: typeof candidate.latitude === "number" && Number.isFinite(candidate.latitude) ? candidate.latitude : undefined,
+    longitude: typeof candidate.longitude === "number" && Number.isFinite(candidate.longitude) ? candidate.longitude : undefined,
+  };
+}
+
 export default function WeatherClientBootstrap() {
   const dispatch = useDispatch<AppDispatch>();
   const weatherinfoArray = useSelector(selectWeatherinfoArray);
@@ -47,7 +82,7 @@ export default function WeatherClientBootstrap() {
         const { longitude, latitude } = position.coords;
         const [cityInfo, weatherData] = await Promise.all([
           GetTheCityInfoByLola(longitude, latitude),
-          GetWeatherForecast(latitude, longitude),
+          fetchWeatherByCoordinates(latitude, longitude),
         ]);
 
         if (cityInfo.status !== "success" || !weatherData) {
@@ -63,7 +98,14 @@ export default function WeatherClientBootstrap() {
         dispatch(setWeatherState(weatherData));
       } catch {
         const defaultCity = getDefaultCity();
-        await dispatch(fetchAndSetInfo({ name: defaultCity, setCurrentInfo: true }));
+        const knownCity = getKnownCity(defaultCity);
+        await dispatch(fetchAndSetInfo({
+          name: defaultCity,
+          setCurrentInfo: true,
+          latitude: knownCity?.latitude,
+          longitude: knownCity?.longitude,
+          country: knownCity?.country,
+        }));
       }
     }
 
@@ -72,30 +114,58 @@ export default function WeatherClientBootstrap() {
       if (!cityCookie) return;
       try {
         const parsed = JSON.parse(cityCookie);
-        if (!Array.isArray(parsed) || !parsed.every((c) => typeof c === "string" && c.trim() !== "")) {
+        if (!Array.isArray(parsed)) {
           Cookies.remove("city");
           return;
         }
 
-        const allCities = parsed as string[];
+        const allCities = parsed.map(normalizeSavedCityCookie).filter((city): city is SavedCityCookie => !!city);
         const citiesToFetch = allCities.filter(
-          (city) => !weatherinfoArray.find((weatherinfo) => weatherinfo?.daily.location === city)
+          (city) => {
+            const name = typeof city === "string" ? city : city.name;
+            const country = typeof city === "string" ? undefined : city.country;
+            return !weatherinfoArray.find((weatherinfo) => {
+              const sameName = weatherinfo?.daily.location === name;
+              const sameCountry = country ? weatherinfo?.daily.country === country : true;
+              return sameName && sameCountry;
+            });
+          }
         );
 
         await Promise.all(
-          citiesToFetch.map((city) => dispatch(fetchAndSetInfo({ name: city, setCurrentInfo: false })))
+          citiesToFetch.map((city) => {
+            const name = typeof city === "string" ? city : city.name;
+            const knownCity = getKnownCity(name);
+            const latitude = typeof city === "string" ? knownCity?.latitude : city.latitude ?? knownCity?.latitude;
+            const longitude = typeof city === "string" ? knownCity?.longitude : city.longitude ?? knownCity?.longitude;
+            const country = typeof city === "string" ? knownCity?.country : city.country ?? knownCity?.country;
+            return dispatch(fetchAndSetInfo({ name, setCurrentInfo: false, latitude, longitude, country }));
+          })
         );
       } catch {
         Cookies.remove("city");
       }
     }
 
+    async function refreshCurrentRouteCity() {
+      const city = getCityFromWeatherPath(pathname ?? null);
+      if (!city) return;
+      const knownCity = getKnownCity(city);
+      await dispatch(fetchAndSetInfo({
+        name: city,
+        setCurrentInfo: true,
+        latitude: knownCity?.latitude,
+        longitude: knownCity?.longitude,
+        country: knownCity?.country,
+      }));
+    }
+
     async function init() {
       const isCityRoute = /^\/weather\/[^/]+/i.test(pathname ?? "");
 
-      // Keep SSR city stable on city routes to avoid post-hydration visual jump.
+      // Keep SSR city visible immediately, then refresh it through the public weather API.
       if (isCityRoute) {
-        await loadCitiesFromCookies();
+        await Promise.all([refreshCurrentRouteCity(), loadCitiesFromCookies()]);
         return;
       }
 

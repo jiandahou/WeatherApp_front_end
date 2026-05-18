@@ -42,6 +42,10 @@ export type locationWeather={
     weatherForNextTenDay:Array<weatherdailyinfo>
     location?:string
     country?:string
+    latitude?:number
+    longitude?:number
+    timezone?:string
+    timezoneAbbreviation?:string
 }
 export type hourlyForecast={
     time: Date,

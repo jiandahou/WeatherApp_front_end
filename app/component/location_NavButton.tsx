@@ -19,7 +19,11 @@ export default function LocationNavButton({weather}:{
     const dispatch = useDispatch<AppDispatch>();
 
         function navButtonOnclick(){
-            const cached = weatherinfoArray.find((weatherinfo)=> weatherinfo?.daily.location === cityName)
+            const cached = weatherinfoArray.find((weatherinfo)=> {
+                const sameName = weatherinfo?.daily.location === cityName;
+                const sameCountry = weather.country ? weatherinfo?.daily.country === weather.country : true;
+                return sameName && sameCountry;
+            })
             if(cached){
                 dispatch(setWeatherinfo(cached));
             }

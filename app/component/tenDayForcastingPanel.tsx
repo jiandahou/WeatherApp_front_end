@@ -8,6 +8,7 @@ import { indexOnPageContext } from "./context"
 import { motion } from "motion/react"
 import { WeatherSVGMotion } from "./WeatherSVGMotion"
 import Image from 'next/image'
+import { CalendarDays, CloudOff } from "lucide-react"
 
 const monthIntepretor:{[key:number]:string}={
     0:"January",
@@ -24,8 +25,27 @@ const monthIntepretor:{[key:number]:string}={
     11:"December",
 }
 
-export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{return}}:{
-    weatherForThatDay:weatherdailyinfo,isActive?:boolean,onClick?:any}
+function formatDatePart(date: Date, timezone?: string): string {
+    return new Intl.DateTimeFormat('en-CA', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: timezone,
+    }).format(date)
+}
+
+function getRelativeDayLabel(date: Date, timezone?: string): string {
+    const today = new Date()
+    const tomorrow = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+
+    if (formatDatePart(date, timezone) === formatDatePart(today, timezone)) return "Today"
+    if (formatDatePart(date, timezone) === formatDatePart(tomorrow, timezone)) return "Tomorrow"
+    return date.toLocaleDateString('en-US', { weekday: 'short', timeZone: timezone })
+}
+
+export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{return},timezone}:{
+    weatherForThatDay:weatherdailyinfo,isActive?:boolean,onClick?:any,timezone?: string}
 ){
     let weathername=resolveWeatherKeyByCode(weatherForThatDay.weathercode)
     const weatherIconSrc = resolveWeatherIconSrcByCode(weatherForThatDay.weathercode)
@@ -35,7 +55,11 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
     const dateObj = weatherForThatDay.time instanceof Date 
         ? weatherForThatDay.time 
         : new Date(weatherForThatDay.time);
-    const dayLabel = `${monthIntepretor[dateObj.getMonth()]} ${dateObj.getDate().toString()} ${dateObj.toLocaleDateString('en-US', { weekday: 'long' })}`;
+    const monthLabel = dateObj.toLocaleDateString('en-US', { month: 'long', timeZone: timezone });
+    const dayNumberLabel = dateObj.toLocaleDateString('en-US', { day: 'numeric', timeZone: timezone });
+    const weekdayLongLabel = dateObj.toLocaleDateString('en-US', { weekday: 'long', timeZone: timezone });
+    const relativeDayLabel = getRelativeDayLabel(dateObj, timezone);
+    const dayLabel = `${monthLabel} ${dayNumberLabel} ${weekdayLongLabel}`;
     
     return(
         <motion.div layout transition={{ type: "spring", stiffness: 220, damping: 24 }} className={clsx("shrink-0 grow-0",{"basis-40 sm:basis-44":isActive==false,"basis-64 sm:basis-80":isActive==true})}>
@@ -55,8 +79,9 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
             >
                 <div className="flex items-center justify-between">
                     <div>
-                        <div className="text-[1.35rem] leading-tight font-semibold sm:text-sm">{monthIntepretor[dateObj.getMonth()]} {dateObj.getDate().toString()}</div>
-                        <div className="text-[11px] uppercase tracking-[0.12em] sm:text-xs sm:tracking-[0.2em] text-ui-text-3">{dateObj.toLocaleDateString('en-US', { weekday: 'long' })}</div>
+                        <div className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ui-accent sm:text-xs">{relativeDayLabel}</div>
+                        <div className="mt-1 text-[1.35rem] leading-tight font-semibold sm:text-sm">{monthLabel} {dayNumberLabel}</div>
+                        <div className="text-[11px] uppercase tracking-[0.12em] sm:text-xs sm:tracking-[0.2em] text-ui-text-3">{weekdayLongLabel}</div>
                     </div>
                     <Image alt={weathername} src={weatherIconSrc} width={38} height={38} className="h-8 w-8 sm:h-[38px] sm:w-[38px]" onError={(e) => { (e.target as HTMLImageElement).src = weatherIconFallbackSrc; }} />
                 </div>
@@ -84,9 +109,11 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
 export function ButtonPanleForTenDay({
     onClick,
     weatherForNextTenDay,
+    timezone,
 }:{
     onClick: Function;
     weatherForNextTenDay: weatherdailyinfo[];
+    timezone?: string;
 }){
     const activeOnpage=useContext(indexOnPageContext)
     const viewportRef=useRef<HTMLDivElement>(null)
@@ -210,8 +237,8 @@ export function ButtonPanleForTenDay({
         <div className="relative my-5">
             <div className="mb-3 flex items-center justify-between">
                 <div>
-                    <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] sm:tracking-[0.3em] text-ui-text-3">Forecast Command Strip</h3>
-                    <p className="text-[11px] sm:text-xs text-ui-text-2">Ten-day weather outlook with aligned metric syntax.</p>
+                    <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-[0.18em] sm:tracking-[0.3em] text-ui-text-3">10-Day Forecast</h3>
+                    <p className="text-[11px] sm:text-xs text-ui-text-2">High, low, and rain probability by day.</p>
                 </div>
                 <div className="panel-surface rounded-full border border-ui-stroke-soft/15 px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs text-ui-text-2">Day {activeOnpage + 1}</div>
             </div>
@@ -222,7 +249,7 @@ export function ButtonPanleForTenDay({
             <div ref={viewportRef} className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-8 sm:px-0">
             <div ref={trackRef} className="flex w-max">
                 {weatherForNextTenDay.map((wentherForThatDay,index)=>(
-                    <Buttonforoneday weatherForThatDay={wentherForThatDay} isActive={index==activeOnpage} onClick={()=>{onClick(index)}} key={`${wentherForThatDay.time}-${index}`} />
+                    <Buttonforoneday weatherForThatDay={wentherForThatDay} isActive={index==activeOnpage} onClick={()=>{onClick(index)}} timezone={timezone} key={`${wentherForThatDay.time}-${index}`} />
                 ))}
             </div>
             </div>
@@ -236,16 +263,51 @@ export function ButtonPanleForTenDay({
 export default function TenDayForcastingPanel({
     hourlyinfo,
     weatherForNextTenDay,
+    timezone,
+    timezoneAbbreviation,
 }:{
     hourlyinfo: hourlyForecast[];
     weatherForNextTenDay: weatherdailyinfo[];
+    timezone?: string;
+    timezoneAbbreviation?: string;
 }) {
     var [index,setIndex]=useState(0)
+    useEffect(() => {
+        if (index >= weatherForNextTenDay.length) {
+            setIndex(0)
+        }
+    }, [index, weatherForNextTenDay.length])
+
+    const selectedDay = weatherForNextTenDay[index]
+    const selectedDate = selectedDay?.time instanceof Date ? selectedDay.time : selectedDay?.time ? new Date(selectedDay.time) : null
+    const selectedDayLabel = selectedDate
+        ? `${getRelativeDayLabel(selectedDate, timezone)} / ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: timezone })}`
+        : "No day selected"
+
+    if (!weatherForNextTenDay.length) {
+        return (
+            <div className="rounded-2xl border border-dashed border-ui-stroke-soft/25 bg-ui-surface-1/55 p-6 text-center text-ui-text-2">
+                <CloudOff className="mx-auto h-8 w-8 text-ui-text-3" aria-hidden />
+                <div className="mt-3 text-sm font-semibold text-ui-text-1">Forecast is unavailable</div>
+                <div className="mt-1 text-xs text-ui-text-3">The latest weather update did not include daily forecast rows.</div>
+            </div>
+        )
+    }
+
     return(
         <div>
             <indexOnPageContext.Provider value={index} >
-            <div><ButtonPanleForTenDay onClick={setIndex} weatherForNextTenDay={weatherForNextTenDay}></ButtonPanleForTenDay></div>
-            <div><WeatherSVGMotion key={`weather-curve-${index}`} hourlyinfo={hourlyinfo} /></div>
+            <div><ButtonPanleForTenDay onClick={setIndex} weatherForNextTenDay={weatherForNextTenDay} timezone={timezone}></ButtonPanleForTenDay></div>
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2 px-1 text-sm text-ui-text-2">
+                <div className="inline-flex items-center gap-2">
+                    <CalendarDays className="h-4 w-4 text-ui-accent" aria-hidden />
+                    <span>{selectedDayLabel}</span>
+                </div>
+                <span className="rounded-full border border-ui-stroke-soft/20 bg-ui-surface-1/60 px-3 py-1 text-xs text-ui-text-3">
+                    {timezoneAbbreviation && timezone ? `${timezoneAbbreviation} / ${timezone}` : timezone ?? "Local forecast time"}
+                </span>
+            </div>
+            <div><WeatherSVGMotion key={`weather-curve-${index}`} hourlyinfo={hourlyinfo} timezone={timezone} timezoneAbbreviation={timezoneAbbreviation} /></div>
             </indexOnPageContext.Provider>
         </div>
     )   

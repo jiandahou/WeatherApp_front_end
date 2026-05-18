@@ -4,6 +4,7 @@ import { useContext, useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
 import { indexOnPageContext } from './context'
 import { type hourlyForecast } from '../type/weatherType'
+import { Clock3, CloudOff } from 'lucide-react'
 
 function TempertureToColor(temp: number): string {
   if (temp < 0) return "rgb(139, 164, 241)"
@@ -23,8 +24,12 @@ function TempertureToColor(temp: number): string {
 
 export function WeatherSVGMotion({
   hourlyinfo,
+  timezone,
+  timezoneAbbreviation,
 }: {
   hourlyinfo: hourlyForecast[]
+  timezone?: string
+  timezoneAbbreviation?: string
 }) {
   const shouldReduceMotion = useReducedMotion()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -47,11 +52,31 @@ export function WeatherSVGMotion({
   }, [])
 
   const now = new Date()
+  const timezoneLabel = timezoneAbbreviation && timezone
+    ? `${timezoneAbbreviation} / ${timezone}`
+    : timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone
+  const hourFormatter = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    hour12: false,
+    timeZone: timezone,
+  })
+  const dayHourFormatter = new Intl.DateTimeFormat('en-CA', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    hour12: false,
+    timeZone: timezone,
+  })
+  const getHourInForecastTimezone = (date: Date) => {
+    const hour = Number(hourFormatter.format(date))
+    return hour === 24 ? 0 : hour
+  }
   
   // 修复：安全的日期比较函数
   const isNow = (timeValue: any) => {
     const t = timeValue instanceof Date ? timeValue : new Date(timeValue)
-    return t.getHours() === now.getHours() && t.getDate() === now.getDate()
+    return dayHourFormatter.format(t) === dayHourFormatter.format(now)
   }
 
   // 修复：安全的日期转换函数
@@ -61,11 +86,19 @@ export function WeatherSVGMotion({
     return new Date(timeValue)
   }
 
-  const nowHour = now.getHours();
+  const nowHour = getHourInForecastTimezone(now);
   const startIndex = indexOnpage === 0 ? nowHour : 0 // First day starts from current hour, others from 0:00
   const absoluteStart = indexOnpage * 24 + startIndex
   const slice = hourlyinfo.slice(absoluteStart, absoluteStart + 25)
-  if (slice.length < 2) return null
+  if (slice.length < 2) {
+    return (
+      <div className="rounded-xl border border-dashed border-ui-stroke-soft/25 bg-ui-surface-1/55 p-6 text-center text-ui-text-2">
+        <CloudOff className="mx-auto h-8 w-8 text-ui-text-3" aria-hidden />
+        <div className="mt-3 text-sm font-semibold text-ui-text-1">Hourly outlook is unavailable</div>
+        <div className="mt-1 text-xs text-ui-text-3">The latest weather update did not include enough hourly rows.</div>
+      </div>
+    )
+  }
 
   const temps = slice.map((h) => h.temperature2m)
   const minT = Math.min(...temps)
@@ -83,7 +116,7 @@ export function WeatherSVGMotion({
       x,
       y,
       temp: h.temperature2m,
-      hour: timeObj.getHours(), 
+      hour: getHourInForecastTimezone(timeObj),
       rain: h.precipitationProbability,
       time: timeObj,
     }
@@ -120,14 +153,21 @@ export function WeatherSVGMotion({
     if (isNow(p.time)) return 'Now'
     const isLastPoint = i === points.length - 1
     if (isLastPoint && points.length > 24 && p.hour === 0) return '24:00'
-    return `${p.hour}:00`
+    return `${p.hour.toString().padStart(2, '0')}:00`
   }
 
   return (
     <div
       ref={containerRef}
-      className="backdrop-blur-md bg-gray-800/50 rounded-xl shadow-lg overflow-hidden p-2"
+      className="overflow-hidden rounded-xl border border-ui-stroke-soft/20 bg-ui-surface-1/70 p-2 shadow-panelSoft backdrop-blur-md"
     >
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-2 pt-2 text-xs text-ui-text-3">
+        <div className="inline-flex items-center gap-2 font-medium text-ui-text-2">
+          <Clock3 className="h-4 w-4 text-ui-accent" aria-hidden />
+          <span>Hourly outlook</span>
+        </div>
+        <span>{timezoneLabel}</span>
+      </div>
       <svg width={width} height={height}>
         <defs>
           <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
