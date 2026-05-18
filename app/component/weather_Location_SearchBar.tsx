@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../store/store";
 import { fetchAndSetInfo, selectWeatherinfoArray, setWeatherinfo } from "../store/slice/weatherSlice";
@@ -22,6 +22,7 @@ export default function WeatherLocationSearchBar() {
   const [hasSearched, setHasSearched] = useState(false);
   const [debounced] = useDebounce(input, 250);
   const [openSearchbox, setOpenSearchbox] = useState(false);
+  const searchRequestId = useRef(0);
   const dispatch = useDispatch<AppDispatch>();
   const weatherinfoArray = useSelector(selectWeatherinfoArray);
   const enableOpenMeteoFallback = false;
@@ -56,8 +57,19 @@ export default function WeatherLocationSearchBar() {
       dispatch(fetchAndSetInfo({ name, setCurrentInfo: true, updateCookie: true, longitude, latitude, country }));
     }
 
-    setTimeout(() => loseFocus(), 100);
+    loseFocus();
   }, [dispatch, loseFocus, weatherinfoArray]);
+
+  const selectCity = useCallback((
+    event: PointerEvent<HTMLButtonElement>,
+    city: City,
+    country: string,
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+    searchRequestId.current += 1;
+    searchBarOnclick(city.name, city.lng, city.lat, country);
+  }, [searchBarOnclick]);
 
   const searchByOpenMeteo = useCallback(async (query: string): Promise<City[]> => {
     const url = new URL("https://geocoding-api.open-meteo.com/v1/search");
@@ -160,14 +172,17 @@ export default function WeatherLocationSearchBar() {
 
   useEffect(() => {
     if (!debounced) {
+      searchRequestId.current += 1;
       loseFocus();
       return;
     }
 
     let ignore = false;
+    const requestId = searchRequestId.current + 1;
+    searchRequestId.current = requestId;
     async function searchCities() {
       const cities = await checkresult(debounced);
-      if (!ignore) {
+      if (!ignore && searchRequestId.current === requestId) {
         setResult(cities);
       }
     }
@@ -247,10 +262,7 @@ export default function WeatherLocationSearchBar() {
                         <button
                           type="button"
                           className="w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-                          onClick={() => {
-                            searchBarOnclick(item.name, item.lng, item.lat, country);
-                            loseFocus();
-                          }}
+                          onPointerDown={(event) => selectCity(event, item, country)}
                         >
                           <div className="flex items-center justify-between gap-3">
                             <span className="truncate font-medium text-ui-text-1">{item.name}</span>

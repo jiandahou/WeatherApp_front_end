@@ -126,6 +126,7 @@ export default function MainWeatherPanel({
 
     return (
         <section
+            data-main-weather-panel
             className="relative overflow-hidden rounded-3xl border border-ui-stroke-soft/30 bg-cover bg-center shadow-xl z-0 text-ui-text-1 drop-shadow-md"
             style={{
                 backgroundImage: `url('/backgrounds/${backgroundPreset.file}.jpg')`,

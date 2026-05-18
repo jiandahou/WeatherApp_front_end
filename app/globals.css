@@ -118,7 +118,11 @@
   * {
     @apply border-border;
     }
+  html {
+    overflow-anchor: none;
+  }
   body {
     @apply bg-ui-bg-0 text-ui-text-1;
+    overflow-anchor: none;
     }
 }

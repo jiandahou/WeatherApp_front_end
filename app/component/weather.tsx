@@ -16,6 +16,8 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { selectWeatherError, selectWeatherLoading, selectWeatherinfo } from "../store/slice/weatherSlice"
 import WeatherClientBootstrap from "./weatherClientBootstrap";
 import type { weatherinfoFetched } from "../type/weatherType";
+import { useLayoutEffect } from "react";
+import { usePathname } from "next/navigation";
 
 function WeatherStatusNotice({
   tone,
@@ -48,9 +50,69 @@ export default function Weather({
   const weatherinfo = useSelector(selectWeatherinfo)
   const isRefreshing = useSelector(selectWeatherLoading)
   const refreshError = useSelector(selectWeatherError)
+  const pathname = usePathname();
   const activeWeather = (weatherinfo ?? initialWeather) as NonNullable<weatherinfoFetched>;
   const isLoading = !activeWeather;
   const firstHour = activeWeather?.hourly?.[0];
+
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    const timeoutIds: number[] = [];
+    const frameIds: number[] = [];
+    let userInteracted = false;
+
+    const scrollToPageTop = () => {
+      if (userInteracted) return;
+      const scrollingElement = document.scrollingElement ?? document.documentElement;
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      scrollingElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    const markUserScrolled = () => {
+      userInteracted = true;
+    }
+
+    const scheduleFrame = () => {
+      const frameId = window.requestAnimationFrame(() => {
+        scrollToPageTop();
+      });
+      frameIds.push(frameId);
+    };
+
+    const scheduleReset = (delay: number) => {
+      timeoutIds.push(window.setTimeout(() => {
+        scrollToPageTop();
+        scheduleFrame();
+      }, delay));
+    };
+
+    const scrollOnPageEvent = () => {
+      scrollToPageTop();
+      scheduleFrame();
+    };
+
+    scrollToPageTop();
+    scheduleFrame();
+    [0, 50, 150, 350, 800, 1500, 2500, 4000].forEach(scheduleReset);
+    window.addEventListener("pageshow", scrollOnPageEvent);
+    window.addEventListener("load", scrollOnPageEvent);
+    window.addEventListener("wheel", markUserScrolled, { passive: true });
+    window.addEventListener("touchmove", markUserScrolled, { passive: true });
+
+    return () => {
+      frameIds.forEach((frameId) => window.cancelAnimationFrame(frameId));
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+      window.removeEventListener("pageshow", scrollOnPageEvent);
+      window.removeEventListener("load", scrollOnPageEvent);
+      window.removeEventListener("wheel", markUserScrolled);
+      window.removeEventListener("touchmove", markUserScrolled);
+    };
+  }, [pathname]);
 
 
   return (

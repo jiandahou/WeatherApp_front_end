@@ -19,6 +19,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+              window.addEventListener('beforeunload', function () {
+                if (location.pathname.indexOf('/weather/') === 0) {
+                  window.scrollTo(0, 0);
+                  document.documentElement.scrollTop = 0;
+                  document.body.scrollTop = 0;
+                }
+              });
+            `,
+          }}
+        />
+      </head>
       <body className={inter.className}>
         <StoreProvider>
           <Suspense fallback={<LoadingSkeleton />}>
