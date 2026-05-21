@@ -20,15 +20,15 @@ function Pressure({Pressure}:{Pressure:number}) {
   }
   
   return (
-    <div className='panel-surface-strong col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
+    <div className='weather-metric-card col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
       <div className='flex items-center gap-2'>
-        <Image src="/Pressure.png" width={22} height={22} alt="Pressure" />
+        <Image src="/Pressure.png" width={22} height={22} alt="Pressure" loading="eager" />
         <span className='text-xs uppercase tracking-[0.28em] text-ui-text-3'>Barometric</span>
       </div>
 
       <div className='mt-3 flex items-end gap-2'>
         <span className='text-6xl font-semibold leading-none'>{Math.round(Pressure)}</span>
-        <span className='pb-1 text-sm uppercase tracking-[0.2em] text-ui-text-2'>hpa</span>
+        <span className='pb-1 text-sm uppercase tracking-[0.2em] text-ui-text-2'>hPa</span>
       </div>
 
       <div className='mt-1 flex items-center justify-between text-sm'>

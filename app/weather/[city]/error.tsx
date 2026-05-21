@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 /**
  * Route-level error boundary for /weather/[city].
  * Handles fetch failures (city not found, backend down, etc.)
@@ -14,10 +12,6 @@ export default function CityError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("[CityError]", error);
-  }, [error]);
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ui-bg-0 text-ui-text-1">
       <h2 className="text-2xl font-semibold">Failed to load weather data</h2>

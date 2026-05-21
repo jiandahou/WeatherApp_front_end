@@ -163,7 +163,7 @@ export async function getWeatherForecast(
     showersSum: weatherData.daily.showersSum[todayIndex],
     snowfallSum: weatherData.daily.snowfallSum[todayIndex],
     precipitationHours: weatherData.daily.precipitationHours[todayIndex],
-    recipitationProbabilityMax: weatherData.daily.precipitationProbabilityMax[todayIndex],
+    precipitationProbabilityMax: weatherData.daily.precipitationProbabilityMax[todayIndex],
     weatherForNextTenDay: [] as Array<weatherdailyinfo>,
     latitude,
     longitude,
@@ -184,7 +184,7 @@ export async function getWeatherForecast(
       showersSum: weatherData.daily.showersSum[i],
       snowfallSum: weatherData.daily.snowfallSum[i],
       precipitationHours: weatherData.daily.precipitationHours[i],
-      recipitationProbabilityMax: weatherData.daily.precipitationProbabilityMax[i],
+      precipitationProbabilityMax: weatherData.daily.precipitationProbabilityMax[i],
       time: dailyTime,
       weathercode: weatherData.daily.weatherCode[i],
     });

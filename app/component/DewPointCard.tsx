@@ -24,10 +24,10 @@ function DewPointCard({ dewPoint, temperature }: { dewPoint: number; temperature
   const waterDropCount = Math.ceil(condensationLevel * 8)
 
   return (
-    <div className='panel-surface-strong col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
+    <div className='weather-metric-card col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
-          <Image src='/Fog.svg' width={22} height={22} alt='Dew Point' />
+          <Image src='/Fog.svg' width={22} height={22} alt='Dew Point' loading="eager" />
           <span className='text-xs uppercase tracking-[0.28em] text-ui-text-3'>Dew Point</span>
         </div>
         
@@ -85,12 +85,12 @@ function DewPointCard({ dewPoint, temperature }: { dewPoint: number; temperature
 
       <div className='mt-3 flex items-end gap-2'>
         <span className='text-6xl font-semibold leading-none'>{Math.round(dewPoint)}</span>
-        <span className='pb-1 text-sm uppercase tracking-[0.2em] text-ui-text-2'>c</span>
+        <span className='pb-1 text-sm uppercase tracking-[0.2em] text-ui-text-2'>°C</span>
       </div>
 
       <div className='mt-1 flex items-center justify-between text-sm'>
         <span className={`font-medium ${tone}`}>{status}</span>
-        <span className='text-ui-text-3'>spread {spread}deg</span>
+        <span className='text-ui-text-3'>spread {spread}°</span>
       </div>
 
       <div className='mt-4'>

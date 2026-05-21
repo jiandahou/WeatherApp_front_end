@@ -16,6 +16,14 @@
   .panel-surface-strong {
     @apply bg-ui-surface-2/85 border border-ui-stroke-strong backdrop-blur-md shadow-panelSoft;
   }
+
+  .weather-metric-card {
+    @apply bg-ui-surface-2/95 border border-ui-stroke-strong shadow-panelSoft;
+    backface-visibility: hidden;
+    contain: layout paint style;
+    isolation: isolate;
+    transform: translateZ(0);
+  }
 }
 
 @layer base {

@@ -24,9 +24,9 @@ function Visibility({visibility}:{visibility:number}) {
   }
 
   return (
-    <div className='panel-surface-strong col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
+    <div className='weather-metric-card col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
       <div className='flex items-center gap-2'>
-        <Image src="/Visibility.svg" width={22} height={22} alt="Visibility" />
+        <Image src="/Visibility.svg" width={22} height={22} alt="Visibility" loading="eager" />
         <span className='text-xs uppercase tracking-[0.28em] text-ui-text-3'>Sight Range</span>
       </div>
 

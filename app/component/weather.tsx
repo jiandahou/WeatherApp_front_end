@@ -175,7 +175,7 @@ export default function Weather({
               <RainWindowCard
                 precipitationHours={activeWeather.daily.precipitationHours}
                 precipitationSum={activeWeather.daily.precipitationSum}
-                precipitationProbabilityMax={activeWeather.daily.recipitationProbabilityMax}
+                precipitationProbabilityMax={activeWeather.daily.precipitationProbabilityMax}
               />
               <SunshineRatioCard
                 sunshineDuration={activeWeather.daily.sunshineDuration}

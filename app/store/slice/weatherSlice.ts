@@ -16,6 +16,12 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { GetTheCityInfo } from  '../../action/serveractions';
 import { getKnownCity } from '../../data/knownCities';
 import { fetchWeatherByCoordinates } from '../../utils/weatherApiClient';
+import {
+  createSavedCityFromWeather,
+  getSavedCityIdentity,
+  normalizeSavedCityCookie,
+  type SavedCityCookie,
+} from '../../utils/savedCities';
 import Cookies from 'js-cookie';
 
 function getWeatherIdentity(weatherinfo: weatherinfoFetched): string | undefined {
@@ -24,40 +30,11 @@ function getWeatherIdentity(weatherinfo: weatherinfoFetched): string | undefined
   const country = weatherinfo?.daily.country?.trim().toLowerCase();
   return country ? `${location}:${country}` : location;
 }
-type SavedCityCookie = string | {
-  name: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-};
-
 function findWeatherIndexByIdentity(items: weatherinfoFetched[], target: weatherinfoFetched): number {
   const targetIdentity = getWeatherIdentity(target);
   if (!targetIdentity) return -1;
 
   return items.findIndex((weatherinfo) => getWeatherIdentity(weatherinfo) === targetIdentity);
-}
-
-function normalizeSavedCityCookie(value: unknown): SavedCityCookie | null {
-  if (typeof value === "string" && value.trim() !== "") return value;
-  if (!value || typeof value !== "object") return null;
-
-  const candidate = value as Partial<Extract<SavedCityCookie, object>>;
-  if (typeof candidate.name !== "string" || candidate.name.trim() === "") return null;
-
-  return {
-    name: candidate.name,
-    country: typeof candidate.country === "string" ? candidate.country : undefined,
-    latitude: typeof candidate.latitude === "number" && Number.isFinite(candidate.latitude) ? candidate.latitude : undefined,
-    longitude: typeof candidate.longitude === "number" && Number.isFinite(candidate.longitude) ? candidate.longitude : undefined,
-  };
-}
-
-function getSavedCityIdentity(city: SavedCityCookie): string {
-  if (typeof city === "string") return city.trim().toLowerCase();
-  const name = city.name.trim().toLowerCase();
-  const country = city.country?.trim().toLowerCase();
-  return country ? `${name}:${country}` : name;
 }
 
 function safelyUpdateCityCookie(weatherData: weatherinfoFetched) {
@@ -70,17 +47,11 @@ function safelyUpdateCityCookie(weatherData: weatherinfoFetched) {
       const parsed = JSON.parse(citycookie);
       if (Array.isArray(parsed)) {
         cityList = parsed.map(normalizeSavedCityCookie).filter((city): city is SavedCityCookie => !!city);
-      } else {
-        console.warn("Invalid city cookie format, resetting...");
       }
     }
 
-    const nextCity = {
-      name: weatherData.daily.location,
-      country: weatherData.daily.country,
-      latitude: weatherData.daily.latitude,
-      longitude: weatherData.daily.longitude,
-    };
+    const nextCity = createSavedCityFromWeather(weatherData);
+    if (!nextCity) return;
     const nextIdentity = getSavedCityIdentity(nextCity);
 
     if (!cityList.some((city) => getSavedCityIdentity(city) === nextIdentity)) {
@@ -88,8 +59,7 @@ function safelyUpdateCityCookie(weatherData: weatherinfoFetched) {
     }
 
     Cookies.set("city", JSON.stringify(cityList), { expires: 7 });
-  } catch (error) {
-    console.error("Failed to update city cookie. Resetting...", error);
+  } catch {
     if (weatherData?.daily.location) {
       Cookies.set("city", JSON.stringify([{ name: weatherData.daily.location, country: weatherData.daily.country }]), { expires: 7 });
     }
@@ -149,10 +119,6 @@ export const weatherSlice=createSlice(
                 setLocation:(state,action: PayloadAction<string>)=>{
                     if(state.weatherinfo)
                         state.weatherinfo.daily.location=action.payload
-                    else
-                    {
-                        console.log("Weatherinfo is not existing")
-                    }
                 },
                 setWeatherState:(state,action: PayloadAction<weatherinfoFetched>)=>{
                   const existingIndex = findWeatherIndexByIdentity(state.weatherinfoArray, action.payload);
@@ -171,7 +137,6 @@ export const weatherSlice=createSlice(
                     state.error = undefined;
                   })
                   .addCase(fetchAndSetInfo.fulfilled, (state, action) => {
-                    console.log("Fetched weather data:", action.payload.data,new Date(Date.now()).toLocaleString());
                     state.loading = false;
                     const { data, setCurrentInfo, updateCookie } = action.payload;
                     const existingIndex = findWeatherIndexByIdentity(state.weatherinfoArray, data);

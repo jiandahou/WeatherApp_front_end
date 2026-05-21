@@ -38,8 +38,7 @@ export async function GET(req: Request) {
         "Cache-Control": weatherCacheControl,
       },
     });
-  } catch (error) {
-    console.error("Error fetching weather data:", error);
+  } catch {
     return NextResponse.json({ error: "Failed to fetch weather data" }, { status: 500 });
   }
 }

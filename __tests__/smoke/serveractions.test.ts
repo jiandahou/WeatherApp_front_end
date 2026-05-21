@@ -1,13 +1,5 @@
-/**
- * Smoke Test 1: Server Actions – Contract Verification
- *
- * Verifies that the critical server-action exports exist and are async functions.
- * These do NOT call real APIs – external modules are mocked.
- */
+﻿import { describe, it, expect, vi, beforeAll } from 'vitest';
 
-import { describe, it, expect, vi, beforeAll } from 'vitest';
-
-// ── Mock heavy / external dependencies ─────────────────────────────────────
 vi.mock('openai', () => ({
   default: vi.fn().mockImplementation(() => ({
     chat: {
@@ -21,35 +13,10 @@ vi.mock('openai', () => ({
 }));
 
 vi.mock('openmeteo', () => ({
-  fetchWeatherApi: vi.fn().mockResolvedValue([
-    {
-      current: () => ({
-        variables: () => ({ value: () => 20 }),
-        time: () => BigInt(Date.now() / 1000),
-      }),
-      daily: () => ({
-        variables: () => ({ valuesArray: () => new Float32Array([20, 22]) }),
-        time: () => BigInt(Date.now() / 1000),
-        timeEnd: () => BigInt(Date.now() / 1000 + 86400 * 10),
-        interval: () => 86400,
-      }),
-      hourly: () => ({
-        variables: () => ({ valuesArray: () => new Float32Array([20]) }),
-        time: () => BigInt(Date.now() / 1000),
-        timeEnd: () => BigInt(Date.now() / 1000 + 3600 * 24),
-        interval: () => 3600,
-      }),
-    },
-  ]),
+  fetchWeatherApi: vi.fn(),
 }));
 
-vi.mock('dotenv', () => ({
-  default: { config: vi.fn() },
-  config: vi.fn(),
-}));
-
-// ── Tests ────────────────────────────────────────────────────────────────────
-describe('Server Actions – smoke', () => {
+describe('Server Actions', () => {
   let actions: typeof import('@/app/action/serveractions');
 
   beforeAll(async () => {
@@ -58,10 +25,10 @@ describe('Server Actions – smoke', () => {
 
   it('exports GetWeatherSummary as an async function', () => {
     expect(typeof actions.GetWeatherSummary).toBe('function');
-    // async functions return a Promise
-    const fakeInput = {
+
+    const result = actions.GetWeatherSummary({
       location: 'Beijing',
-      time: Date.now(),
+      time: new Date(),
       temperatureNow: 20,
       apparentTemperatureNow: 18,
       windSpeed10m: 5,
@@ -70,10 +37,10 @@ describe('Server Actions – smoke', () => {
       weatherCode: 0,
       highestTemperature: 25,
       lowestTemperature: 15,
-      recipitationProbabilityMax: 10,
+      precipitationProbabilityMax: 10,
       sunshineDuration: 36000,
-    };
-    const result = actions.GetWeatherSummary(fakeInput as any);
+    } as any);
+
     expect(result).toBeInstanceOf(Promise);
   });
 
@@ -81,10 +48,10 @@ describe('Server Actions – smoke', () => {
     expect(typeof actions.GetWeatherForecast).toBe('function');
   });
 
-  it('GetWeatherSummary resolves to a string (mocked)', async () => {
+  it('GetWeatherSummary resolves to a string with mocked OpenAI', async () => {
     const summary = await actions.GetWeatherSummary({
       location: 'Beijing',
-      time: Date.now(),
+      time: new Date(),
       temperatureNow: 22,
       apparentTemperatureNow: 20,
       windSpeed10m: 10,
@@ -93,9 +60,10 @@ describe('Server Actions – smoke', () => {
       weatherCode: 1,
       highestTemperature: 28,
       lowestTemperature: 16,
-      recipitationProbabilityMax: 5,
+      precipitationProbabilityMax: 5,
       sunshineDuration: 40000,
     } as any);
+
     expect(typeof summary).toBe('string');
     expect((summary ?? '').length).toBeGreaterThan(0);
   });

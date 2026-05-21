@@ -1,7 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
-
 /**
  * Global error boundary (app/error.tsx).
  * Catches unhandled errors anywhere in the app tree.
@@ -14,10 +12,6 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error("[GlobalError]", error);
-  }, [error]);
-
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ui-bg-0 text-ui-text-1">
       <h2 className="text-2xl font-semibold">Something went wrong</h2>

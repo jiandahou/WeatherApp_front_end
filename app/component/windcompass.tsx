@@ -47,10 +47,10 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 
   return (
-        <div ref={panelRef} className='panel-surface-strong col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
+        <div ref={panelRef} className='weather-metric-card col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
                 <div className='flex items-center justify-between gap-2'>
                     <div className='flex items-center gap-2'>
-            <Image src="/Windspeed.png" alt='windspeed' width={22} height={22} />
+            <Image src="/Windspeed.png" alt='windspeed' width={22} height={22} loading="eager" />
             <span className='text-xs uppercase tracking-[0.28em] text-ui-text-3'>Wind Control</span>
                     </div>
                     <span className='rounded-full border border-ui-stroke-soft/35 bg-ui-surface-1/70 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.2em] text-ui-text-3'>

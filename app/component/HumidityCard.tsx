@@ -17,21 +17,38 @@ function HumidityCard({ humidity }: { humidity: number }) {
     description = 'Air can feel sticky and warmer than actual.'
   }
 
-  // Generate water vapor molecules visualization
-  const moleculeCount = 16
+  const moleculePositions = [
+    { x: 12, y: 14 },
+    { x: 26, y: 10 },
+    { x: 43, y: 13 },
+    { x: 56, y: 20 },
+    { x: 18, y: 28 },
+    { x: 34, y: 24 },
+    { x: 50, y: 33 },
+    { x: 10, y: 43 },
+    { x: 28, y: 41 },
+    { x: 44, y: 47 },
+    { x: 58, y: 50 },
+    { x: 20, y: 57 },
+    { x: 36, y: 59 },
+    { x: 52, y: 61 },
+    { x: 7, y: 23 },
+    { x: 62, y: 38 },
+  ]
+  const moleculeCount = moleculePositions.length
   const activeMolecules = Math.ceil((clamped / 100) * moleculeCount)
-  const molecules = Array.from({ length: moleculeCount }, (_, i) => ({
+  const molecules = moleculePositions.map((position, i) => ({
     id: i,
-    x: Math.random() * 60 + 5,
-    y: Math.random() * 60 + 5,
+    x: position.x,
+    y: position.y,
     active: i < activeMolecules,
   }))
 
   return (
-    <div className='panel-surface-strong col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
+    <div className='weather-metric-card col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
-          <Image src='/Fog.svg' width={22} height={22} alt='Humidity' />
+          <Image src='/Fog.svg' width={22} height={22} alt='Humidity' loading="eager" />
           <span className='text-xs uppercase tracking-[0.28em] text-ui-text-3'>Humidity</span>
         </div>
 

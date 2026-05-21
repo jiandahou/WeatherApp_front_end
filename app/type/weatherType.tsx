@@ -10,7 +10,7 @@ export type weatherdailyinfo={
     showersSum:number,
     snowfallSum:number,
     precipitationHours:number,
-    recipitationProbabilityMax:number,
+    precipitationProbabilityMax:number,
     time:Date
     weathercode:number
 }
@@ -38,7 +38,7 @@ export type locationWeather={
     showersSum:number,
     snowfallSum:number,
     precipitationHours:number,
-    recipitationProbabilityMax:number,
+    precipitationProbabilityMax:number,
     weatherForNextTenDay:Array<weatherdailyinfo>
     location?:string
     country?:string

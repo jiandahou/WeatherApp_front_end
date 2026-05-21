@@ -13,13 +13,12 @@ import {
   selectWeatherinfoArray,
   setWeatherState,
 } from "../store/slice/weatherSlice";
-
-type SavedCityCookie = string | {
-  name: string;
-  country?: string;
-  latitude?: number;
-  longitude?: number;
-};
+import {
+  getSavedCityCountry,
+  getSavedCityName,
+  normalizeSavedCityCookie,
+  type SavedCityCookie,
+} from "../utils/savedCities";
 
 function getDefaultCity(): string {
   const lang = navigator.language.toLowerCase();
@@ -53,21 +52,6 @@ function getCityFromWeatherPath(pathname: string | null): string | null {
   } catch {
     return match[1];
   }
-}
-
-function normalizeSavedCityCookie(value: unknown): SavedCityCookie | null {
-  if (typeof value === "string" && value.trim() !== "") return value;
-  if (!value || typeof value !== "object") return null;
-
-  const candidate = value as Partial<Extract<SavedCityCookie, object>>;
-  if (typeof candidate.name !== "string" || candidate.name.trim() === "") return null;
-
-  return {
-    name: candidate.name,
-    country: typeof candidate.country === "string" ? candidate.country : undefined,
-    latitude: typeof candidate.latitude === "number" && Number.isFinite(candidate.latitude) ? candidate.latitude : undefined,
-    longitude: typeof candidate.longitude === "number" && Number.isFinite(candidate.longitude) ? candidate.longitude : undefined,
-  };
 }
 
 export default function WeatherClientBootstrap() {
@@ -122,8 +106,8 @@ export default function WeatherClientBootstrap() {
         const allCities = parsed.map(normalizeSavedCityCookie).filter((city): city is SavedCityCookie => !!city);
         const citiesToFetch = allCities.filter(
           (city) => {
-            const name = typeof city === "string" ? city : city.name;
-            const country = typeof city === "string" ? undefined : city.country;
+            const name = getSavedCityName(city);
+            const country = getSavedCityCountry(city);
             return !weatherinfoArray.find((weatherinfo) => {
               const sameName = weatherinfo?.daily.location === name;
               const sameCountry = country ? weatherinfo?.daily.country === country : true;
@@ -134,11 +118,11 @@ export default function WeatherClientBootstrap() {
 
         await Promise.all(
           citiesToFetch.map((city) => {
-            const name = typeof city === "string" ? city : city.name;
+            const name = getSavedCityName(city);
             const knownCity = getKnownCity(name);
             const latitude = typeof city === "string" ? knownCity?.latitude : city.latitude ?? knownCity?.latitude;
             const longitude = typeof city === "string" ? knownCity?.longitude : city.longitude ?? knownCity?.longitude;
-            const country = typeof city === "string" ? knownCity?.country : city.country ?? knownCity?.country;
+            const country = getSavedCityCountry(city) ?? knownCity?.country;
             return dispatch(fetchAndSetInfo({ name, setCurrentInfo: false, latitude, longitude, country }));
           })
         );

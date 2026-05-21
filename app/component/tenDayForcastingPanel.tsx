@@ -67,7 +67,7 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
                 layout
                 type="button"
                 aria-pressed={isActive}
-                aria-label={`${isActive ? 'Active' : 'Switch to'} forecast day ${dayLabel}. High ${weatherForThatDay.highestTemperature.toFixed(1)} degrees, low ${weatherForThatDay.lowestTemperature.toFixed(1)} degrees, rain ${weatherForThatDay.recipitationProbabilityMax} percent.`}
+                aria-label={`${isActive ? 'Active' : 'Switch to'} forecast day ${dayLabel}. High ${weatherForThatDay.highestTemperature.toFixed(1)} degrees, low ${weatherForThatDay.lowestTemperature.toFixed(1)} degrees, rain ${weatherForThatDay.precipitationProbabilityMax} percent.`}
                 className={clsx(
                     "button h-28 sm:h-32 w-full rounded-xl sm:rounded-2xl border p-2.5 sm:p-3 text-left text-ui-text-1 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ui-accent/70",
                     {
@@ -97,7 +97,7 @@ export function Buttonforoneday({weatherForThatDay,isActive=false,onClick=()=>{r
                     </div>
                     <div className="rounded-xl border border-ui-stroke-soft/15 bg-ui-overlay-weak/20 px-1.5 sm:px-2 py-1">
                         <div className="text-[9px] uppercase tracking-[0.12em] sm:text-[10px] sm:tracking-[0.2em] text-ui-text-3">Rain</div>
-                        <div className={clsx("font-semibold leading-tight tabular-nums whitespace-nowrap text-ui-accent", {"text-[12px] sm:text-[13px]":!isActive, "text-[14px] sm:text-[15px]":isActive})}>{weatherForThatDay.recipitationProbabilityMax}%</div>
+                        <div className={clsx("font-semibold leading-tight tabular-nums whitespace-nowrap text-ui-accent", {"text-[12px] sm:text-[13px]":!isActive, "text-[14px] sm:text-[15px]":isActive})}>{weatherForThatDay.precipitationProbabilityMax}%</div>
                     </div>
                 </div>
 

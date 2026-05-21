@@ -29,10 +29,10 @@ function RainWindowCard({
   const waterFillPercent = Math.min((amount / 50) * 100, 100)
 
   return (
-    <div className='panel-surface-strong col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
+    <div className='weather-metric-card col-span-12 md:col-span-6 xl:col-span-3 rounded-2xl border border-ui-stroke-soft/20 p-4 sm:p-5 text-ui-text-1'>
       <div className='flex items-center justify-between'>
         <div className='flex items-center gap-2'>
-          <Image src='/Rainsum.png' width={22} height={22} alt='Rain Window' />
+          <Image src='/Rainsum.png' width={22} height={22} alt='Rain Window' loading="eager" />
           <span className='text-xs uppercase tracking-[0.28em] text-ui-text-3'>Rain Window</span>
         </div>
         

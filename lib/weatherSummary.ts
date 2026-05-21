@@ -18,7 +18,7 @@ export async function getWeatherSummary(weatherInfo: locationWeather): Promise<s
     weatherCode,
     highestTemperature,
     lowestTemperature,
-    recipitationProbabilityMax,
+    precipitationProbabilityMax,
     sunshineDuration,
   } = weatherInfo;
 
@@ -37,7 +37,7 @@ Here is the weather data for ${locationString} on ${dateStr}:
 - High: ${highestTemperature} C / Low: ${lowestTemperature} C
 - Wind: ${windSpeed10m} km/h, direction ${windDirection10m}
 - Precipitation: ${precipitation} mm
-- Chance of rain: ${recipitationProbabilityMax}%
+- Chance of rain: ${precipitationProbabilityMax}%
 - Sunshine duration: ${sunshineDuration} seconds
 - Weather code: ${weatherCode}
 - Weather: ${weatherName}
